@@ -73,7 +73,7 @@
      </rect>
     </property>
     <property name="currentIndex">
-     <number>1</number>
+     <number>0</number>
     </property>
     <widget class="QWidget" name="tab">
      <attribute name="title">
@@ -2417,12 +2417,12 @@ polarity:</string>
        <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;To know the exact USB port you can use:&lt;br/&gt;&lt;span style=&quot; font-family:'monospace'; font-style:italic;&quot;&gt;ls /dev/usb/&lt;br/&gt;&lt;br/&gt;&lt;/span&gt;&lt;span style=&quot; font-family:'monospace';&quot;&gt;The output should be &amp;quot;&lt;/span&gt;&lt;span style=&quot; font-family:'monospace';&quot;&gt;V1718_X&amp;quot; &lt;br/&gt;&lt;br/&gt;Use X as USB port&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
       </property>
      </widget>
-     <widget class="QLabel" name="label_26">
+     <widget class="QLabel" name="label_connec_type">
       <property name="geometry">
        <rect>
-        <x>220</x>
+        <x>165</x>
         <y>300</y>
-        <width>91</width>
+        <width>131</width>
         <height>21</height>
        </rect>
       </property>
@@ -2432,8 +2432,14 @@ polarity:</string>
         <pointsize>10</pointsize>
        </font>
       </property>
+      <property name="layoutDirection">
+       <enum>Qt::LeftToRight</enum>
+      </property>
       <property name="text">
-       <string>USB port</string>
+       <string>USB port:</string>
+      </property>
+      <property name="alignment">
+       <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
       </property>
      </widget>
      <widget class="QLabel" name="label_29">

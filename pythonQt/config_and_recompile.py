@@ -40,7 +40,7 @@ class ConfigRecomp():
             else:
                 self.ui.FileTypeSet.setCurrentText("Binary")
 
-    def freeTrigger(self,trigger,state):
+    def freeTrigger(self, trigger, state):
         if state and self.ui.externaltrigger.isChecked() is False:
             trigger.setDisabled(False)
         else:
@@ -96,38 +96,59 @@ class ConfigRecomp():
 
 
     def checkUSB(self, usbport):
-        ret = sp.getoutput("/bin/ls /dev/usb")
-        standardret = "v1718_"
-        pos = ret.find(standardret)
-        if pos == -1: pos = ret.find(standardret.capitalize())
-        if pos == -1:
-            QMessageBox.warning(self, "Warning!", "The digitizer was probably not recognized by the system")
-            return
-        pos += len(standardret)
-        realUSB = ret[pos]
+        if self.uiconnectype[0] == "USB":
+            ret = sp.getoutput("/bin/ls /dev/usb")
+            standardret = "v1718_"
+            pos = ret.find(standardret)
+            if pos == -1: pos = ret.find(standardret.capitalize()) # if it failed, check with captial just in case
+            if pos == -1:
+                QMessageBox.warning(self, "Warning!", "The digitizer was probably not recognized by the system")
+                return
+            pos += len(standardret)
+            realUSB = ret[pos]
 
-        if str(usbport) != realUSB:
-            QMessageBox.warning(self, "WARNING", f"The USB port was set to {usbport}.\nThis seems to not be correct.\nIf you have problems running wavedump, try port {realUSB}.")
-            return
+            if str(usbport) != realUSB:
+                QMessageBox.warning(self, "WARNING", f"The USB port was set to {usbport}.\nThis seems to not be correct.\nIf you have problems running wavedump, try port {realUSB}.")
+                return
+        else:
+            # To be implemented
+            realUSB = usbport
 
     def loadConfig(self, mfile):
         if mfile == "":
             dirnow = self.ui.primary_name.text()
             mfile, mfilter = QtWidgets.QFileDialog.getOpenFileName(self, "Find Files", f'{self.default_path}/{dirnow}', "*.txt, *.log")
 
-        if not mfile:
+        if not mfile: # if nothing was selected, get out
             return
 
 
         try:
-
             with open(mfile,"r") as f:
                 # this get content lines and their position
-                alllines = [line.rstrip() for line in f]
-                lines = [line for line in alllines if line and not line.startswith('#')]
+                alllines = [line.rstrip() for line in f]  # replace \n by nothing
+                lines = [line for line in alllines if line and not line.startswith('#')]  # only non empty and no commented
                 # self.ui = Ui_MainWindow()
-                # self.ui.setupUi(self)
+
+                # OPEN USB 0 0
+                # # OPEN: open the digitizer
+                # # options: USB 0 0                  Desktop/NIM digitizer through USB
+                # #          PCI 0 0 0                Desktop/NIM/VME through CONET (optical link)
+                # #              |
+                # #              link number
+                # #                | nodenumber, only for optical. Should be always 0 with 1 digitizer
+
+
                 self.ui.usbPort.setValue(int((lines[1].split())[2]))
+                if(lines[1].split()[1] == "USB"):
+                    self.uiconnectype[0] = "USB"
+                    self.ui.USB_type.setChecked(True)
+                    self.ui.Optical_type.setChecked(False)
+                else:
+                    self.uiconnectype[0] = "PCI"
+                    self.ui.Optical_type.setChecked(True)
+                    self.ui.USB_type.setChecked(False)
+
                 self.recordlength = int(lines[2].split()[1])
 
                 max_samplingRate = self.ui.adcMaximumRate.currentText()
@@ -226,7 +247,10 @@ class ConfigRecomp():
 
         replace = [""]*15
         replace[0] = f"[COMMON]"
-        replace[1] = f'OPEN USB {usbport} 0'
+        if self.uiconnectype[0] == "USB":
+            replace[1] = f'OPEN USB {usbport} 0'
+        else:
+            replace[1] = f'OPEN PCI {usbport} 0 0'
         replace[2] = f'RECORD_LENGTH  {self.recordlength}'
         replace[3] = f'DECIMATION_FACTOR 1'
         replace[4] = f'POST_TRIGGER  {self.ui.postTrigger.text()}'
@@ -389,9 +413,26 @@ class ConfigRecomp():
             return
 
 
-    def setTriggerType(self, typechoice, uichoice, uiotherchoice):
+    def setConnectionType(self, typechoice, uichoice, uiotherchoice):
         # as soon as it is clicked, The state changes, keep this in mind
         # self.ui = Ui_MainWindow()
+        if uiotherchoice.isChecked() and uichoice.isChecked(): #just activated uichoice
+            self.uiconnectype[0] = typechoice
+            uiotherchoice.setChecked(False)
+        elif not uiotherchoice.isChecked() and not uichoice.isChecked():
+            uichoice.setChecked(True)
+            QMessageBox.about(self, "WARNING", f'{typechoice} was kept.\nChoose one of the connection types.')
+            self.uiconnectype[0] = typechoice
+        if typechoice == "USB":
+            self.ui.label_connec_type.setText("USB port:")
+        else:
+            self.ui.label_connec_type.setText("Optical link:")
+
+
+
+
+    def setTriggerType(self, typechoice, uichoice, uiotherchoice):
+        # as soon as it is clicked, The state changes, keep this in mind
         if uiotherchoice.isChecked() and uichoice.isChecked(): #just activated uichoice
             self.uitriggertype[0] = typechoice
             uiotherchoice.setChecked(False)

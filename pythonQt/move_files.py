@@ -39,9 +39,9 @@ class MainWindow(QtWidgets.QMainWindow, ConfigRecomp, Ui_About):
         self.codepath_list = self.codepath.split(os.sep) # split it with the division "/",
         self.codepath = os.sep.join(self.codepath_list[:-1]) # remove the last folder
 
-        self.untouch = True
+        self.untouch = True # marks if the destination of the data was changed or not
         #configuring some extras
-        self.sampling_set = "250 MSamples/s"
+        self.sampling_set = "500 MSamples/s"
         self.sampling_original = "500 MSamples/s"
         self.getPrevState()
 
@@ -127,6 +127,11 @@ class MainWindow(QtWidgets.QMainWindow, ConfigRecomp, Ui_About):
 
         self.ui.actionAcqusition_only.toggled.connect(lambda: self.setTriggerType("ACQUISITION_ONLY", self.ui.actionAcqusition_only, self.ui.actionAcq_and_TRG_OUT))
         self.ui.actionAcq_and_TRG_OUT.toggled.connect(lambda: self.setTriggerType("ACQUISITION_AND_TRGOUT", self.ui.actionAcq_and_TRG_OUT, self.ui.actionAcqusition_only))
+
+        self.uiconnectype = [""]
+
+        self.ui.USB_type.toggled.connect(lambda: self.setConnectionType("USB", self.ui.USB_type, self.ui.Optical_type))
+        self.ui.Optical_type.toggled.connect(lambda: self.setConnectionType("Optical", self.ui.Optical_type, self.ui.USB_type))
 
         self.previousStateTrigger = [False for i in range(self.nchannels)]
 
