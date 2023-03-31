@@ -12,7 +12,7 @@ else
     factor=$2
 fi
 
-ROOTPATH=~/Documents/CAEN_Digitizer
+ROOTPATH=~/Documents/CAEN_Control
 CURRENT=$( pwd )
 
 

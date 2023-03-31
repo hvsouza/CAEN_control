@@ -55,7 +55,7 @@
      <bool>false</bool>
     </property>
     <property name="text">
-     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Author: Henrique Souza&lt;br/&gt;email: henriquevieira.souza@gmail.com&lt;br/&gt;&lt;br/&gt;This GUI interface was create to make the operation of a CAEN digitizer easier&lt;/p&gt;&lt;p&gt;&lt;br/&gt;Please refer to the GitHub repository for more information:&lt;br/&gt;&lt;a href=&quot;http://github.com/hvsouza/CAEN_Digitizer/&quot;&gt;&lt;span style=&quot; text-decoration: underline; color:#007af4;&quot;&gt;CAEN Digitizer&lt;/span&gt;&lt;/a&gt;&lt;br/&gt;&lt;br/&gt;A lot of effort was put in this GUI, please read the instructions. &lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Author: Henrique Souza&lt;br/&gt;email: henriquevieira.souza@gmail.com&lt;br/&gt;&lt;br/&gt;This GUI interface was create to make the operation of a CAEN digitizer easier&lt;/p&gt;&lt;p&gt;&lt;br/&gt;Please refer to the GitHub repository for more information:&lt;br/&gt;&lt;a href=&quot;http://github.com/hvsouza/CAEN_Control/&quot;&gt;&lt;span style=&quot; text-decoration: underline; color:#007af4;&quot;&gt;CAEN Digitizer&lt;/span&gt;&lt;/a&gt;&lt;br/&gt;&lt;br/&gt;A lot of effort was put in this GUI, please read the instructions. &lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
     </property>
     <property name="scaledContents">
      <bool>true</bool>

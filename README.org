@@ -55,14 +55,9 @@ Please, if you find any bug, miss information or some nasty mistake, feel free t
 Clone this repository inside the "Documents" folder:
 #+begin_src bash
 cd ~/Documents
-git clone https://github.com/hvsouza/CAEN_Digitizer.git
-cd CAEN_Digitizer
+git clone https://github.com/hvsouza/CAEN_Control.git
+cd CAEN_Control
 #+end_src
-# If you are using the digitizer in the VD-PDS DAQ computer, please checkout in the coldbox branch:
-# #+begin_src
-# git checout coldbox
-# #+end_src
-# (In this version, the user enters the amount of waveform to be saved)
 
 To install the digitizer drivers and wavedump there are a few requirements and steps. I invite the user to read the manual of the digitizer and wavedump and also to search about the installation.
    
@@ -80,7 +75,7 @@ If you are installing for the first time, you probably need to restart the compu
 If the digitizer is connected and installation was successfully, open a terminal and just type “wavedump”, it should show you something like this output:
 
 # this is another way to do it
-# [[https://github.com/hvsouza/CAEN_Digitizer/blob/master/.repo_img/startup_ex.png]]
+# [[https://github.com/hvsouza/CAEN_Control/blob/master/.repo_img/startup_ex.png]]
 
 #+HTML: <img src=".repo_img/startup_ex.png" align="center" width="600" />
    
@@ -156,7 +151,7 @@ Some times, the digitizer will not be recognized by the computer (this usually h
    
 Disconnect the digitizer, turn it off
 #+begin_src bash
-cd ~/Documents/ CAEN_Digitizer
+cd ~/Documents/ CAEN_Control
 ./fix_usb.sh
 #+end_src
 
@@ -184,7 +179,7 @@ If there is a file named =V1718_X=, you should set the USB port at the config fi
 A reported problem at Debian was the following error when trying to install the usb driver:
 #+begin_example
 Installing CAENUSB
-make -C /lib/modules/5.10.0-18-amd64/build M=/home/user/Documents/CAEN_Digitizer/Installation/PreInstallThis/CAENUSBdrvB-1.5.4 LDDINCDIR=/home/user/Documents/CAEN_Digitizer/Installation/PreInstallThis/CAENUSBdrvB-1.5.4/../include modules
+make -C /lib/modules/5.10.0-18-amd64/build M=/home/user/Documents/CAEN_Control/Installation/PreInstallThis/CAENUSBdrvB-1.5.4 LDDINCDIR=/home/user/Documents/CAEN_Control/Installation/PreInstallThis/CAENUSBdrvB-1.5.4/../include modules
 make[1]: * /lib/modules/5.10.0-18-amd64/build: No such file or directory.  Stop.
 make: * [Makefile:36: default] Error 2
 cp: cannot stat 'CAENUSBdrvB.ko': No such file or directory
@@ -207,7 +202,7 @@ python3 -m pip install pyqt5
 To check if the GUI is working, you can type:
 
 #+begin_src
-python3 ~/Documents/CAEN_Digitizer/pythonQt/move_files.py &
+python3 ~/Documents/CAEN_Control/pythonQt/move_files.py &
 #+end_src
 The =&= lets your terminal free in case you want to use it.
 
@@ -218,7 +213,7 @@ During data taking, with the terminal open at =~/Desktop/WaveDumpData/= you can 
 
 # There is an already compile version of the GUI, to test if it is working, execute:
 # #+begin_src
-# ~/Documents/CAEN_Digitizer/move_files/build-move_files-Desktop_Qt_5_GCC_64bit-Release/move_files
+# ~/Documents/CAEN_Control/move_files/build-move_files-Desktop_Qt_5_GCC_64bit-Release/move_files
 # #+end_src
 
 # If the GUI does not comes out, check the error message. You may need to install some libraries.
@@ -291,7 +286,7 @@ The GUI is just an interface to automatically move files from the WaveDumpData f
 
 In example above, the named will be composed by the two blocks as =block1_block2= (you can use only one of the two blocks if desired, just leave it as blank). The option "Extra info" keeps the same functionality. In the example above folders and files would be named as:
 
-In the example from the image above, the GUI will create a folder named =new_data= at =~/Documents/ADC_data/coldbox_data= (the lock option is just to not change the name by mistake, you don’t need to lock it). \\
+In the example from the image above, the GUI will create a folder named =new_data= at =~/Documents/ADC_data/neutron_data= (the lock option is just to not change the name by mistake, you don’t need to lock it). \\
 After taking data with two channels, for example, you should have “wave0.dat” and “wave1.dat” at WaveDumpData.
 
 When pressing “Move files”, a folder named “run0_two_different_blocks_of_text” will be created (note: “extra info” will not be placed in the name of the folder), inside the folder “new_data” and the two files will be moved there as:
@@ -340,7 +335,7 @@ Please, keep in mind that the run and subrun numbers can be changed by hand. So 
 - “Trigger Ch” is the channel in which you are triggering, HOWEVER, the field there can be any text, so you can write, for instance, “Ch0_and_Ch1” or even include some extra information and write something like this “Ch0_and_Ch1_cosmic_run_after_lunch_break”
 - “Extra info” is any extra information that will be written at the end of the files (not folders), see bellow.
 
-In the example from the image above, the GUI will create a folder named =new_data= at =~/Documents/ADC_data/coldbox_data= (the lock option is just to not change the name by mistake, you don’t need to lock it). \\
+In the example from the image above, the GUI will create a folder named =new_data= at =~/Documents/ADC_data/neutron_data= (the lock option is just to not change the name by mistake, you don’t need to lock it). \\
 After taking data with two channels, for example, you should have “wave0.dat” and “wave1.dat” at WaveDumpData.
 
 When pressing “Move files”, a folder named “run0_42V30_20ADC_Ch0” will be created (note: “extra info” will not be placed in the name of the folder), inside the folder “new_data” and the two files will be moved there as:
@@ -388,7 +383,7 @@ In the example above, wavedump will be recompiled setting a maximum of 500 wavef
 
 * Extra: Creating a shortcut for Wavedump
 
-Inside the folder =~/Documents/CAEN_Digitizer/installation_files/install_by_hand= you will find the file WaveDump.desktop. Replace the user from “henrique” to yours. Copy the .desktop file into =~/.local/share/applications/= (the tumbnail should be already placed at =~/Pictures=). Now, open the menu (windows key) and search for CAEN you should find the shortcut (if not, try login out and login in). You can place this short cut at your dock/panel, this makes much easier to launch wavedump in a way that is saves the data at =~/Desktop/WaveDumpData/=.
+Inside the folder =~/Documents/CAEN_Control/installation_files/install_by_hand= you will find the file WaveDump.desktop. Replace the user from “henrique” to yours. Copy the .desktop file into =~/.local/share/applications/= (the tumbnail should be already placed at =~/Pictures=). Now, open the menu (windows key) and search for CAEN you should find the shortcut (if not, try login out and login in). You can place this short cut at your dock/panel, this makes much easier to launch wavedump in a way that is saves the data at =~/Desktop/WaveDumpData/=.
  
 * Extra: recompiling wavedump
 
@@ -405,7 +400,7 @@ This will change the maximum number of waveforms to 2,000 and will reduce a 500 
 Another way to do it is to change manually
 
 #+begin_src bash
-cd ~/Documents/CAEN_Digitizer/wavedump-3.10.3/src
+cd ~/Documents/CAEN_Control/wavedump-3.10.3/src
 #+end_src
 
 Set the maximum number of waveforms by changing the value at line 1493:
@@ -423,7 +418,7 @@ int factor = 2; // Added by Henrique Souza
 Now you just need to compile wavedump again: \\
 (*NOTE*: by doing this, WaveDumpConfig.txt will be overwritten with the default version. Make sure you backup your version if that is important)
 #+begin_src bash
-cd ~/Documents/CAEN_Digitizer/wavedump-3.10.3
+cd ~/Documents/CAEN_Control/wavedump-3.10.3
 ./configure
 make
 sudo make install

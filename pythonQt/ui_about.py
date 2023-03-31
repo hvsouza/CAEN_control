@@ -51,7 +51,7 @@ class Ui_About(object):
     def retranslateUi(self, About):
         _translate = QtCore.QCoreApplication.translate
         About.setWindowTitle(_translate("About", "About"))
-        self.label_2.setText(_translate("About", "<html><head/><body><p>Author: Henrique Souza<br/>email: henriquevieira.souza@gmail.com<br/><br/>This GUI interface was create to make the operation of a CAEN digitizer easier</p><p><br/>Please refer to the GitHub repository for more information:<br/><a href=\"http://github.com/hvsouza/CAEN_Digitizer/\"><span style=\" text-decoration: underline; color:#007af4;\">CAEN Digitizer</span></a><br/><br/>A lot of effort was put in this GUI, please read the instructions. </p></body></html>"))
+        self.label_2.setText(_translate("About", "<html><head/><body><p>Author: Henrique Souza<br/>email: henriquevieira.souza@gmail.com<br/><br/>This GUI interface was create to make the operation of a CAEN digitizer easier</p><p><br/>Please refer to the GitHub repository for more information:<br/><a href=\"http://github.com/hvsouza/CAEN_Control/\"><span style=\" text-decoration: underline; color:#007af4;\">CAEN Digitizer</span></a><br/><br/>A lot of effort was put in this GUI, please read the instructions. </p></body></html>"))
 
 
 if __name__ == "__main__":

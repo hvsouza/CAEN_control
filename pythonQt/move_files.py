@@ -48,7 +48,7 @@ class MainWindow(QtWidgets.QMainWindow, ConfigRecomp, Ui_About):
         self.ui.samplingRate.setCurrentText(self.sampling_set)
         self.ui.samplingRate_2.setCurrentText(self.sampling_set)
         self.ui.adcMaximumRate.setCurrentText(self.sampling_original)
-        self.default_path = f'{self.userpath}/Documents/ADC_data/coldbox_data/'
+        self.default_path = f'{self.userpath}/Documents/ADC_data/neutron_data/'
         self.create_path()
         self.ui.browse_dir.clicked.connect(self.getDir)
         self.primary = self.ui.primary_name.text()
@@ -329,7 +329,7 @@ class MainWindow(QtWidgets.QMainWindow, ConfigRecomp, Ui_About):
 
     def genPatternInfo(self, gen = True):
         self.primary = self.ui.primary_name.text()
-        # mpath = f"{self.userpath}/Documents/ADC_data/coldbox_data/{self.primary}/"
+        # mpath = f"{self.userpath}/Documents/ADC_data/neutron_data/{self.primary}/"
         mpath = f"{self.default_path}{self.primary}/"
         mkdir = f"mkdir -p {mpath}"
 
