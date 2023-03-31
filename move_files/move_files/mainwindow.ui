@@ -73,7 +73,7 @@
      </rect>
     </property>
     <property name="currentIndex">
-     <number>0</number>
+     <number>1</number>
     </property>
     <widget class="QWidget" name="tab">
      <attribute name="title">
@@ -3003,7 +3003,7 @@ The password is the same you use to login the computer.</string>
      <x>0</x>
      <y>0</y>
      <width>509</width>
-     <height>26</height>
+     <height>24</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuLAr_Test">
@@ -3017,8 +3017,16 @@ The password is the same you use to login the computer.</string>
      <addaction name="actionAcqusition_only"/>
      <addaction name="actionAcq_and_TRG_OUT"/>
     </widget>
+    <widget class="QMenu" name="menuConnection_type_2">
+     <property name="title">
+      <string>Connection type</string>
+     </property>
+     <addaction name="USB_type"/>
+     <addaction name="Optical_type"/>
+    </widget>
     <addaction name="actionLoad_cofig_file"/>
     <addaction name="menuTrigger_type"/>
+    <addaction name="menuConnection_type_2"/>
    </widget>
    <widget class="QMenu" name="menu_info">
     <property name="title">
@@ -3061,6 +3069,30 @@ The password is the same you use to login the computer.</string>
    </property>
    <property name="text">
     <string>Acq. and TRG OUT</string>
+   </property>
+  </action>
+  <action name="actionUSB">
+   <property name="text">
+    <string>USB</string>
+   </property>
+  </action>
+  <action name="USB_type">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="checked">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>USB</string>
+   </property>
+  </action>
+  <action name="Optical_type">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Optical</string>
    </property>
   </action>
  </widget>
