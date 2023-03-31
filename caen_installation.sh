@@ -46,7 +46,7 @@ while true; do
     # echo "The original sampling rate is $original_rate MHz."
 
     echo "Do you want to change the sampling rate of the digitizer? (yes/no)"
-    echo "NOTE: for the neutron, data is being taking with 250 MSamples/s."
+    echo "NOTE: for the neutron, data is being taking with 500 MSamples/s."
     read answer
 
     if [ "$answer" == "yes" ]; then

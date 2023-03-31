@@ -198,6 +198,10 @@ Since October 2022, the GUI is now made in python3, to use it you need to instal
 #+begin_src
 python3 -m pip install pyqt5
 #+end_src
+NOTE: you might need to update your pip:
+#+begin_src
+pip install --user --upgrade pip
+#+end_src
 
 To check if the GUI is working, you can type:
 
