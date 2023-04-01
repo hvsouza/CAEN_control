@@ -127,23 +127,26 @@ Please, take a time to understand the acquisition by playing around and making s
 - Learn how to control the graphs at gnuplot
   (to check the gnuplot keybindings, open a terminal, execute =gnuplot=, type =show bind= and press enter).
 
-  When pressing [W], wavedump will ask you the amount of waveforms to be saved. If you want to keep this as default during this sessions, press =y= to the next question. If you want to change it at any point, press =k=. If you choose to save 10,000 waveforms in the .dat files, when it finishes, you should see this in your screen:
+When pressing [W], wavedump will ask you the amount of waveforms to be saved. If you want to keep this as default during this sessions, press =y= to the next question. If you want to change it at any point, press =k=. If you choose to save 10,000 waveforms in the .dat files, when it finishes, you should see this in your screen:
 
-  #+HTML: <img src=".repo_img/continuous_ex.png" align="center" width="300" />
+#+HTML: <img src=".repo_img/continuous_ex.png" align="center" width="300" />
 
-  When you press [P] for continuous plot, what can happen is that gnuplot window will keep in your way (that is very annoying!). One way to stop this is to make sure that the plot is not over the windows you are trying to use, for example the terminal. If the two windows are not overlapping you should be able to use it normally. Another way is to enable “Prevent windows which require attention from stealing focus” (search this configuration for your Linux distribution).
+When you press [P] for continuous plot, what can happen is that gnuplot window will keep in your way (that is very annoying!). One way to stop this is to make sure that the plot is not over the windows you are trying to use, for example the terminal. If the two windows are not overlapping you should be able to use it normally. Another way is to enable “Prevent windows which require attention from stealing focus” (search this configuration for your Linux distribution).
 
-  For the acquisition and in order to properly use the GUI, you should do the following during the acquisition: \\
-  Assuming you have [s] already running, user’s chosen setup done and triggering events.
-   
-  1. [W] save 10,000 (if you want to save 10,000 more, press [W] again at the end).
-  2. Move the .dat files by yourself or with GUI (see [[#using-the-gui]])
+For the acquisition and in order to properly use the GUI, you should do the following during the acquisition: \\
+Assuming you have [s] already running, user’s chosen setup done and triggering events.
 
-     For acquire more data, repeat this.
+1. [W] save 10,000 (if you want to save 10,000 more, press [W] again at the end).
+2. Move the .dat files by yourself or with GUI (see [[#using-the-gui]])
 
-     If you want to understand the binary file structure, please check [[#extra-file-structure]].
+    For acquire more data, repeat this.
 
-     *NOTE*: if you are using the standard version of wavedump, when you move the file it is kept open, so if you press [w] one more time after the continuous read, it will save one extra waveform and close the file.
+    If you want to understand the binary file structure, please check [[#extra-file-structure]].
+
+    *NOTE*: if you are using the standard version of wavedump, when you move the file it is kept open, so if you press [w] one more time after the continuous read, it will save one extra waveform and close the file.\\
+    *NOTE*: to keep continuous writing indefinitely, when asked the number of waveforms to be saved insert =-1=.
+
+
 ** Troubleshooting
 *** Debugging USB
 
