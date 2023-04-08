@@ -293,7 +293,7 @@ The GUI is just an interface to automatically move files from the WaveDumpData f
 
 In example above, the named will be composed by the two blocks as =block1_block2= (you can use only one of the two blocks if desired, just leave it as blank). The option "Extra info" keeps the same functionality. In the example above folders and files would be named as:
 
-In the example from the image above, the GUI will create a folder named =new_data= at =~/Documents/ADC_data/neutron_data= (the lock option is just to not change the name by mistake, you don’t need to lock it). \\
+In the example from the image above, the GUI will create a folder named =new_data= at =~/Documents/ADC_data/BLEND_data= (the lock option is just to not change the name by mistake, you don’t need to lock it). \\
 After taking data with two channels, for example, you should have “wave0.dat” and “wave1.dat” at WaveDumpData.
 
 When pressing “Move files”, a folder named “run0_two_different_blocks_of_text” will be created (note: “extra info” will not be placed in the name of the folder), inside the folder “new_data” and the two files will be moved there as:
@@ -342,7 +342,7 @@ Please, keep in mind that the run and subrun numbers can be changed by hand. So 
 - “Trigger Ch” is the channel in which you are triggering, HOWEVER, the field there can be any text, so you can write, for instance, “Ch0_and_Ch1” or even include some extra information and write something like this “Ch0_and_Ch1_cosmic_run_after_lunch_break”
 - “Extra info” is any extra information that will be written at the end of the files (not folders), see bellow.
 
-In the example from the image above, the GUI will create a folder named =new_data= at =~/Documents/ADC_data/neutron_data= (the lock option is just to not change the name by mistake, you don’t need to lock it). \\
+In the example from the image above, the GUI will create a folder named =new_data= at =~/Documents/ADC_data/BLEND_data= (the lock option is just to not change the name by mistake, you don’t need to lock it). \\
 After taking data with two channels, for example, you should have “wave0.dat” and “wave1.dat” at WaveDumpData.
 
 When pressing “Move files”, a folder named “run0_42V30_20ADC_Ch0” will be created (note: “extra info” will not be placed in the name of the folder), inside the folder “new_data” and the two files will be moved there as:
