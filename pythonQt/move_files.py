@@ -223,15 +223,15 @@ class MainWindow(QtWidgets.QMainWindow, ConfigRecomp, Ui_About):
             self.ui.primary_name.setText(directory)
     def saveConfigDefault(self):
         self.getInfoDefault()
-        _, mpath, folder, _, _, _ = self.genPatternInfo()
+        _, mpath, folder, _, _, _ = self.genPatternInfo(False)
         self.saveConfig(mpath+folder)
     def saveConfigStyle2(self):
         self.getInfoStyle2()
-        _, mpath, folder, _, _, _ = self.genPatternInfo()
+        _, mpath, folder, _, _, _ = self.genPatternInfo(False)
         self.saveConfig(mpath+folder)
 
     def saveConfig(self, pathconfig):
-
+        pathconfig = self.fixString(pathconfig)
         makequestion = False
         if os.path.exists(f'{pathconfig}/config_used.log'):
             with open(f'{pathconfig}/config_used.log') as file_1, open('/etc/wavedump/WaveDumpConfig.txt') as file_2:
@@ -251,6 +251,12 @@ class MainWindow(QtWidgets.QMainWindow, ConfigRecomp, Ui_About):
     def fixString(self, string):
         string = string.replace(" ", "_")
         string = string.replace(".", "_")
+        # avoiding several underscores one after the other
+        string = string.replace("___", "_")
+        string = string.replace("__", "_")
+        string = string.replace("__", "_")
+        if string[-1] == "_":
+            string = string[:-1]
         return string
 
     def checkInt(self, val, uival):
@@ -287,6 +293,7 @@ class MainWindow(QtWidgets.QMainWindow, ConfigRecomp, Ui_About):
             self.block = block1
         else:
             self.block = block2
+        # print(self.block)
         return False
 
     def getInfoStyle2(self):
@@ -311,7 +318,7 @@ class MainWindow(QtWidgets.QMainWindow, ConfigRecomp, Ui_About):
     def default_move(self):
         emptyruns = self.getInfoDefault()
         if emptyruns:
-            QMessageBox.critical(self, "ERROR", "Run or subrun number are empty")
+            QMessageBox.critical(self, "ERROR", "Run or subrun numbers are empty")
             return
         status = self.moveFiles()
         if status:
@@ -322,10 +329,10 @@ class MainWindow(QtWidgets.QMainWindow, ConfigRecomp, Ui_About):
     def style2_move(self):
         emptyruns = self.getInfoStyle2()
         if emptyruns:
-            QMessageBox.critical(self, "ERROR", "Run or subrun number are empty")
+            QMessageBox.critical(self, "ERROR", "Run or subrun numbers are empty")
         status = self.moveFiles()
         if status:
-            self.saveConfigStyle2
+            self.saveConfigStyle2()
             self.subrun[0] += 1
             self.ui.subrun.setText(str(self.subrun[0]))
 
@@ -334,7 +341,7 @@ class MainWindow(QtWidgets.QMainWindow, ConfigRecomp, Ui_About):
 
     def genPatternInfo(self, gen = True):
         self.primary = self.ui.primary_name.text()
-        # mpath = f"{self.userpath}/Documents/ADC_data/neutron_data/{self.primary}/"
+        # mpath = f"{self.userpath}/Documents/ADC_data/BLEND_data/{self.primary}/"
         mpath = f"{self.default_path}{self.primary}/"
         mkdir = f"mkdir -p {mpath}"
 
@@ -343,7 +350,7 @@ class MainWindow(QtWidgets.QMainWindow, ConfigRecomp, Ui_About):
             folder = folder + "_" + self.block
 
         oldname = [f"wave{i}" for i in range(self.nchannels)]
-        format = self.ui.file_type.text()
+        myformat = self.ui.file_type.text()
 
         newname = [""]*self.nchannels
         for i, namej in enumerate(oldname):
@@ -354,13 +361,13 @@ class MainWindow(QtWidgets.QMainWindow, ConfigRecomp, Ui_About):
                 newname[i] = newname[i] + "_" + self.block
 
 
-            newname[i] = newname[i] + format
+            newname[i] = newname[i] + myformat
 
         if gen: os.system(mkdir)
         mkdir = mkdir + folder
-        if gen: os.system(mkdir)
+        # will create the daugther folder only when moving
 
-        return mkdir,mpath, folder, oldname, newname, format
+        return mkdir, mpath, folder, oldname, newname, myformat
 
 
     def getInfoBinary(self, dataname):
@@ -399,7 +406,7 @@ class MainWindow(QtWidgets.QMainWindow, ConfigRecomp, Ui_About):
 
         self.block = self.fixString(self.block)
 
-        mkdir, mpath, folder, oldname, newname, format = self.genPatternInfo()
+        mkdir, mpath, folder, oldname, newname, myformat = self.genPatternInfo()
 
         datapath = f'{self.userpath}/Desktop/WaveDumpData/'
 
@@ -416,11 +423,11 @@ class MainWindow(QtWidgets.QMainWindow, ConfigRecomp, Ui_About):
         aux = 0
         isCritical = False
         for i, _oldname in enumerate(oldname):
-            datacheck = datapath+f'{_oldname}{format}'
+            datacheck = datapath+f'{_oldname}{myformat}'
             transfercheck = f'{mpath}{folder}/{newname[i]}'
             fileIsThere[i] = os.path.exists(datacheck)
             FileNotThereYet[i] = not os.path.exists(transfercheck)
-            cmdmv[i] = f'mv -n ~/Desktop/WaveDumpData/{_oldname}{format} {mpath}{folder}/{newname[i]}'
+            cmdmv[i] = f'mv -n ~/Desktop/WaveDumpData/{_oldname}{myformat} {mpath}{folder}/{newname[i]}'
 
 
             if self.enable_ch[i].isChecked() and fileIsThere[i] is False:
@@ -469,6 +476,10 @@ class MainWindow(QtWidgets.QMainWindow, ConfigRecomp, Ui_About):
                 # print(state)
             QMessageBox.critical(self, "ERROR!", errorMessage2)
             return False
+
+
+        # create the folder only after checking everying is fine
+        os.system(mkdir)
 
         noerror = []
         for c, e in zip(cmdmv,self.enable_ch):
