@@ -182,13 +182,13 @@ MainWindow::~MainWindow()
 //bool MainWindow::move_data_file(int run, int subrun, double voltage, double threshold, std::string triggerCh, std::string extra, std::string primary, std::string file_type)
 //{
 //    int out = 0;
-//    std::string mkdir = "mkdir -p ~/Documents/ADC_data/neutron_data/" + primary + "/";
+//    std::string mkdir = "mkdir -p ~/Documents/ADC_data/BLEND_data/" + primary + "/";
 //    out = system(mkdir.c_str());
 //    std::string folder = folder_name();
 
 //    std::vector<std::string> mvi(channels);
 //    for(int i = 0; i<channels; i++){
-//        mvi[i] = "mv -n ~/Desktop/WaveDumpData/wave" + std::to_string(i) + file_type +" ~/Documents/ADC_data/neutron_data/" + primary + "/";
+//        mvi[i] = "mv -n ~/Desktop/WaveDumpData/wave" + std::to_string(i) + file_type +" ~/Documents/ADC_data/BLEND_data/" + primary + "/";
 //    }
 //    std::string voltageS = changeVoltage(voltage);
 
@@ -297,7 +297,7 @@ MainWindow::~MainWindow()
 //bool MainWindow::move_data_file_style2(int run, int subrun, std::string block1, std::string block2, std::string extra, std::string primary, std::string file_type)
 //{
 //    int out = 0;
-//    std::string mkdir = "mkdir -p ~/Documents/ADC_data/neutron_data/" + primary + "/";
+//    std::string mkdir = "mkdir -p ~/Documents/ADC_data/BLEND_data/" + primary + "/";
 //    out = system(mkdir.c_str());
 
 //    std::string folder = folder_name2();
@@ -306,7 +306,7 @@ MainWindow::~MainWindow()
 
 //    std::vector<std::string> mvi(channels);
 //    for(int i = 0; i<channels; i++){
-//        mvi[i] = "mv -n ~/Desktop/WaveDumpData/wave" + std::to_string(i) + file_type +" ~/Documents/ADC_data/neutron_data/" + primary + "/";
+//        mvi[i] = "mv -n ~/Desktop/WaveDumpData/wave" + std::to_string(i) + file_type +" ~/Documents/ADC_data/BLEND_data/" + primary + "/";
 //    }
 
 //    //QMessageBox::about(this,"",QString::fromStdString(folder0));
@@ -383,14 +383,14 @@ MainWindow::~MainWindow()
 //bool MainWindow::move_calibration_file(int run, int subrun, double voltage, double threshold, std::string triggerCh, std::string extra, std::string primary, std::string file_type)
 //{
 //    int out = 0;
-//    std::string mkdir = "mkdir -p ~/Documents/ADC_data/neutron_data/" + primary + "/";
+//    std::string mkdir = "mkdir -p ~/Documents/ADC_data/BLEND_data/" + primary + "/";
 //    out = system(mkdir.c_str());
 //    std::string folder = folder_name();
 //    folder = folder + "Calibration/";
 
 //    std::vector<std::string> mvi(channels);
 //    for(int i = 0; i<channels; i++){
-//        mvi[i] = "mv -n ~/Desktop/WaveDumpData/wave"+std::to_string(i)+file_type+" ~/Documents/ADC_data/neutron_data/" + primary + "/";
+//        mvi[i] = "mv -n ~/Desktop/WaveDumpData/wave"+std::to_string(i)+file_type+" ~/Documents/ADC_data/BLEND_data/" + primary + "/";
 //    }
 
 //    std::string voltageS = changeVoltage(voltage);
@@ -789,7 +789,7 @@ MainWindow::~MainWindow()
 
 //void MainWindow::save_config_file(std::string folder){
 //    std::string primary = ui->primary_name->text().toStdString();
-//    std::string cpy_command = "cp /etc/wavedump/WaveDumpConfig.txt ~/Documents/ADC_data/neutron_data/" + primary + "/" + folder + "config_used.log";
+//    std::string cpy_command = "cp /etc/wavedump/WaveDumpConfig.txt ~/Documents/ADC_data/BLEND_data/" + primary + "/" + folder + "config_used.log";
 //    system(cpy_command.c_str());
 
 //    QMessageBox::about(this,"","Config. file saved to corresponding run folder");
@@ -800,7 +800,7 @@ MainWindow::~MainWindow()
 //{
 //    std::string primary = ui->primary_name->text().toStdString();
 
-//    std::string mkdir = "mkdir -p ~/Documents/ADC_data/neutron_data/" + primary + "/";
+//    std::string mkdir = "mkdir -p ~/Documents/ADC_data/BLEND_data/" + primary + "/";
 //    system(mkdir.c_str());
 //    std::string folder = folder_name2();
 
@@ -820,7 +820,7 @@ MainWindow::~MainWindow()
 //    // This take the necessary info to create the folder and files
 //    std::string primary = ui->primary_name->text().toStdString();
 
-//    std::string mkdir = "mkdir -p ~/Documents/ADC_data/neutron_data/" + primary + "/";
+//    std::string mkdir = "mkdir -p ~/Documents/ADC_data/BLEND_data/" + primary + "/";
 //    system(mkdir.c_str());
 //    std::string folder = folder_name();
 
