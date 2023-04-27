@@ -255,8 +255,11 @@ class MainWindow(QtWidgets.QMainWindow, ConfigRecomp, Ui_About):
         string = string.replace("___", "_")
         string = string.replace("__", "_")
         string = string.replace("__", "_")
-        if string[-1] == "_":
-            string = string[:-1]
+        try:
+            if mystring[-1] == "_":
+                mystring = mystring[:-1]
+        except IndexError:
+
         return string
 
     def checkInt(self, val, uival):
@@ -437,7 +440,7 @@ class MainWindow(QtWidgets.QMainWindow, ConfigRecomp, Ui_About):
             elif self.enable_ch[i].isChecked() and FileNotThereYet[i] is False:
                 errorMessage2 = f'{errorMessage2}The file \'{mpath}{folder}/{newname[i]} \'already exist, please check the run and subrun number!\n'
             elif self.enable_ch[i].isChecked():
-                if format == ".dat":
+                if myformat == ".dat":
                     _actual_pts_saved, _total_events = self.getInfoBinary(datacheck)
                 else:
                     _actual_pts_saved, _total_events = self.getInfoASCII(datacheck)
