@@ -261,7 +261,7 @@ class MainWindow(QtWidgets.QMainWindow, ConfigRecomp, Ui_About):
         except IndexError:
             pass
 
-        return string
+        return mystring
 
     def checkInt(self, val, uival):
         if not uival.text().strip(): # if it is empty or just white spaces
