@@ -248,17 +248,18 @@ class MainWindow(QtWidgets.QMainWindow, ConfigRecomp, Ui_About):
         os.system(cmdcpy)
         # QMessageBox.about(self, "", "Config. file saved.")
 
-    def fixString(self, string):
-        string = string.replace(" ", "_")
-        string = string.replace(".", "_")
+    def fixString(self, mystring):
+        mystring = mystring.replace(" ", "_")
+        mystring = mystring.replace(".", "_")
         # avoiding several underscores one after the other
-        string = string.replace("___", "_")
-        string = string.replace("__", "_")
-        string = string.replace("__", "_")
+        mystring = mystring.replace("___", "_")
+        mystring = mystring.replace("__", "_")
+        mystring = mystring.replace("__", "_")
         try:
             if mystring[-1] == "_":
                 mystring = mystring[:-1]
         except IndexError:
+            pass
 
         return string
 
