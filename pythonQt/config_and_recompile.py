@@ -18,6 +18,7 @@ import subprocess as sp
 
 class ConfigRecomp():
 
+    ui:Ui_MainWindow
     def setExternalTrigger(self):
         for var in self.trigger_ch:
             var.setChecked(False)
@@ -102,7 +103,10 @@ class ConfigRecomp():
             pos = ret.find(standardret)
             if pos == -1: pos = ret.find(standardret.capitalize()) # if it failed, check with captial just in case
             if pos == -1:
-                QMessageBox.warning(self, "Warning!", "The digitizer was probably not recognized by the system")
+                if not self.hold_initial_print:
+                    QMessageBox.warning(self, "Warning!", "The digitizer was probably not recognized by the system")
+                else:
+                    self.hold_initial_print = False
                 return
             pos += len(standardret)
             realUSB = ret[pos]

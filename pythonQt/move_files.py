@@ -13,6 +13,8 @@ import sys
 
 from ui_mainwindow import Ui_MainWindow
 from ui_about import Ui_About
+from ui_run_log import Ui_RunLog
+from ui_channel_map import Ui_ChannelMap
 
 from PyQt5 import QtCore, QtGui, QtWidgets
 from PyQt5.QtWidgets import QMessageBox, QFileDialog
@@ -20,18 +22,21 @@ from PyQt5.QtGui import QIcon
 
 
 from config_and_recompile import ConfigRecomp
+from channel_map import ChannelMapper
+from run_log import RunLogger
 from itertools import groupby
 
 import subprocess as sp
 
 from difflib import Differ
 
-class MainWindow(QtWidgets.QMainWindow, ConfigRecomp, Ui_About):
+class MainWindow(QtWidgets.QMainWindow, ConfigRecomp, Ui_About, ChannelMapper, RunLogger):
     def __init__(self,parent=None):
         super(MainWindow, self).__init__()
 
         self.ui = Ui_MainWindow()
         self.ui.setupUi(self)
+
 
         self.nchannels = 8
         self.userpath = os.path.expanduser('~') # sames has 'cd ~/ && pwd' but safer
@@ -148,12 +153,60 @@ class MainWindow(QtWidgets.QMainWindow, ConfigRecomp, Ui_About):
         self.enable_ch[6].stateChanged.connect(lambda: self.freeTrigger(self.trigger_ch[6],self.enable_ch[6].isChecked()))
         self.enable_ch[7].stateChanged.connect(lambda: self.freeTrigger(self.trigger_ch[7],self.enable_ch[7].isChecked()))
 
+        self.hold_initial_print = True # do not display message before loading main window
         self.ui.actionLoad_cofig_file.triggered.connect(lambda: self.loadConfig(""))
         self.ui.actionAbout.triggered.connect(self.showAbout)
+
+        self.ui.run_log_b.clicked.connect(self.showRunLog)
+        self.ui.channel_map_b.clicked.connect(self.showChannelMap)
 
         self.ui.FileTypeSet.currentTextChanged.connect(self.changeFormat)
         self.ui.externaltrigger.stateChanged.connect(self.checkExternalTrigger)
 
+
+        self.About = QtWidgets.QMainWindow()
+        self.aui = Ui_About()
+        self.aui.setupUi(self.About)
+        self.aui.label.setPixmap(QtGui.QPixmap(f"{self.codepath}/.repo_img/computer-nerd.jpg"))
+        self.aui.label_2.setOpenExternalLinks(True)
+
+        # Channel map Widget setup
+        self.ChannelMap = QtWidgets.QMainWindow()
+        self.cmui = Ui_ChannelMap()
+        self.cmui.setupUi(self.ChannelMap)
+        self.ChannelMap.setWindowModality(QtCore.Qt.WindowModality.WindowModal) # prevent window to lose focus (close - open)
+        self.ChannelMap.setWindowIcon(QIcon(f"{self.codepath}/.repo_img/icon_GUI.png"))
+        self.chmap_neveropen = True
+
+        self.cmui.loadmapb.clicked.connect(self.loadSearchMap)
+        self.cmui.doneb.clicked.connect(self.doneChannelMap)
+        self.cmui.cleanallb.clicked.connect(self.cleanChannelMap)
+        self.chmap = {'0':'', '1':'', '2':'', '3':'', '4':'', '5':'', '6':'', '7':'',}
+        self.chmapui = {
+            '0':self.cmui.chname0,
+            '1':self.cmui.chname1,
+            '2':self.cmui.chname2,
+            '3':self.cmui.chname3,
+            '4':self.cmui.chname4,
+            '5':self.cmui.chname5,
+            '6':self.cmui.chname6,
+            '7':self.cmui.chname7
+        }
+
+        # Channel map Widget setup
+        self.RunLog = QtWidgets.QMainWindow()
+        self.rlui = Ui_RunLog()
+        self.rlui.setupUi(self.RunLog)
+        self.RunLog.setWindowModality(QtCore.Qt.WindowModality.WindowModal) # prevent window to lose focus (close - open)
+        self.RunLog.setWindowIcon(QIcon(f"{self.codepath}/.repo_img/icon_GUI.png"))
+        self.runlog_neveropen = True
+
+        self.rlui.loadb.clicked.connect(self.loadSearchRunLog)
+        self.rlui.doneb.clicked.connect(lambda: self.RunLog.close())
+
+
+
+        # Setup when open
         self.getEnabledAndTrigger()
 
         self.recordlength = 0
@@ -163,13 +216,44 @@ class MainWindow(QtWidgets.QMainWindow, ConfigRecomp, Ui_About):
         self.setWindowIcon(QIcon(f"{self.codepath}/.repo_img/icon_GUI.png"))
 
 
+    def closeEvent(self, event):
+        self.About.close()
+        self.RunLog.close()
+        self.ChannelMap.close()
+
     def showAbout(self):
-        self.About = QtWidgets.QMainWindow()
-        self.aui = Ui_About()
-        self.aui.setupUi(self.About)
-        self.aui.label.setPixmap(QtGui.QPixmap(f"{self.codepath}/.repo_img/computer-nerd.jpg"))
-        self.aui.label_2.setOpenExternalLinks(True)
         self.About.show()
+
+    def showRunLog(self):
+        self.runlog_geo = self.RunLog.geometry()
+        if self.runlog_neveropen:
+            self.RunLog.setGeometry(
+                int(self.geometry().x()+self.geometry().width()/2),
+                int(self.geometry().y()+self.geometry().height()/2),
+                self.runlog_geo.width(),
+                self.runlog_geo.height()
+                )
+            self.runlog_neveropen = False
+        self.RunLog.close()
+        self.RunLog.show()
+        self.RunLog.show()
+
+    def showMain(self):
+        self.show()
+        
+    def showChannelMap(self):
+        self.chmap_geo = self.ChannelMap.geometry()
+        if self.chmap_neveropen:
+            self.RunLog.setGeometry(
+                int(self.geometry().x()+self.geometry().width()/2),
+                int(self.geometry().y()+self.geometry().height()/2),
+                self.runlog_geo.width(),
+                self.runlog_geo.height()
+                )
+            self.chmap_neveropen = False
+        self.ChannelMap.close()
+        self.ChannelMap.show()
+
 
     def updateToolTip(self, standard):
         if standard != "DS": text = self.writeToolTip(standard)
@@ -531,5 +615,5 @@ if __name__ == "__main__":
     print("Please, do not close this terminal if you want to recompile wavedump")
     app = QtWidgets.QApplication(sys.argv)
     w = MainWindow()
-    w.show()
+    w.showMain()
     sys.exit(app.exec_())

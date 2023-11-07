@@ -179,6 +179,12 @@ class Ui_MainWindow(object):
         self.label_27.setGeometry(QtCore.QRect(30, 80, 80, 20))
         self.label_27.setAlignment(QtCore.Qt.AlignRight|QtCore.Qt.AlignTrailing|QtCore.Qt.AlignVCenter)
         self.label_27.setObjectName("label_27")
+        self.run_log_b = QtWidgets.QPushButton(self.tab_16)
+        self.run_log_b.setGeometry(QtCore.QRect(350, 290, 131, 27))
+        self.run_log_b.setObjectName("run_log_b")
+        self.channel_map_b = QtWidgets.QPushButton(self.tab_16)
+        self.channel_map_b.setGeometry(QtCore.QRect(350, 260, 131, 27))
+        self.channel_map_b.setObjectName("channel_map_b")
         self.tabWidget_3.addTab(self.tab_16, "")
         self.tab_15 = QtWidgets.QWidget()
         self.tab_15.setObjectName("tab_15")
@@ -1036,6 +1042,8 @@ class Ui_MainWindow(object):
         self.subrun3.setText(_translate("MainWindow", "0"))
         self.pushButton_4.setText(_translate("MainWindow", "&Finish run"))
         self.label_27.setText(_translate("MainWindow", "Block1:"))
+        self.run_log_b.setText(_translate("MainWindow", "Run log"))
+        self.channel_map_b.setText(_translate("MainWindow", "Channel map"))
         self.tabWidget_3.setTabText(self.tabWidget_3.indexOf(self.tab_16), _translate("MainWindow", "Default"))
         self.triggerCh.setText(_translate("MainWindow", "Trigger Ch:"))
         self.label.setText(_translate("MainWindow", "Run:"))
@@ -1161,13 +1169,3 @@ class Ui_MainWindow(object):
         self.actionUSB.setText(_translate("MainWindow", "USB"))
         self.USB_type.setText(_translate("MainWindow", "USB"))
         self.Optical_type.setText(_translate("MainWindow", "Optical"))
-
-
-if __name__ == "__main__":
-    import sys
-    app = QtWidgets.QApplication(sys.argv)
-    MainWindow = QtWidgets.QMainWindow()
-    ui = Ui_MainWindow()
-    ui.setupUi(MainWindow)
-    MainWindow.show()
-    sys.exit(app.exec_())

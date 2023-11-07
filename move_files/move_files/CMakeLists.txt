@@ -20,6 +20,8 @@ set(PROJECT_SOURCES
         mainwindow.h
         mainwindow.ui
         about.ui
+        run_log.ui
+        channel_map.ui
 )
 
 if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
