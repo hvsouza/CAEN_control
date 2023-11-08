@@ -275,7 +275,6 @@ class MainWindow(QtWidgets.QMainWindow, ConfigRecomp, Ui_About, ChannelMapper, R
             return f'Error: run or subrun is empty'
         _, mpath, folder, _, _, _ = self.genPatternInfo(False)
 
-        folder = self.fixString(folder)
         return f'Currently folders are going to be transfered to:\n{mpath}{folder}'
 
     def create_path(self):
@@ -315,7 +314,6 @@ class MainWindow(QtWidgets.QMainWindow, ConfigRecomp, Ui_About, ChannelMapper, R
         self.saveConfig(mpath+folder)
 
     def saveConfig(self, pathconfig):
-        pathconfig = self.fixString(pathconfig)
         makequestion = False
         if os.path.exists(f'{pathconfig}/config_used.log'):
             with open(f'{pathconfig}/config_used.log') as file_1, open('/etc/wavedump/WaveDumpConfig.txt') as file_2:
@@ -333,13 +331,10 @@ class MainWindow(QtWidgets.QMainWindow, ConfigRecomp, Ui_About, ChannelMapper, R
         # QMessageBox.about(self, "", "Config. file saved.")
 
     def fixString(self, mystring):
-        mystring = mystring.replace(" ", "_")
+        mystring_split = mystring.split() # for removing all spaces
+        mystring = '_'.join(mystring_split)
         mystring = mystring.replace(".", "_")
-        # avoiding several underscores one after the other
-        mystring = mystring.replace("___", "_")
-        mystring = mystring.replace("__", "_")
-        mystring = mystring.replace("__", "_")
-        try:
+        try: # overdoing it probably
             if mystring[-1] == "_":
                 mystring = mystring[:-1]
         except IndexError:
@@ -454,6 +449,7 @@ class MainWindow(QtWidgets.QMainWindow, ConfigRecomp, Ui_About, ChannelMapper, R
         if gen: os.system(mkdir)
         mkdir = mkdir + folder
         # will create the daugther folder only when moving
+        folder = self.fixString(folder)
 
         return mkdir, mpath, folder, oldname, newname, myformat
 
