@@ -1,3 +1,4 @@
+#!/bin/python3
 ## ________________________________________ ##
 ## Author: Henrique Souza
 ## Filename: move_files.py
@@ -15,6 +16,8 @@ from ui_mainwindow import Ui_MainWindow
 from ui_about import Ui_About
 from ui_run_log import Ui_RunLog
 from ui_channel_map import Ui_ChannelMap
+from ui_add_dev_channel_map import Ui_AddDev
+from ui_del_dev_channel_map import Ui_DelDev
 
 from PyQt5 import QtCore, QtGui, QtWidgets
 from PyQt5.QtWidgets import QMessageBox, QFileDialog
@@ -39,6 +42,7 @@ class MainWindow(QtWidgets.QMainWindow, ConfigRecomp, Ui_About, ChannelMapper, R
 
 
         self.nchannels = 8
+        self.DEBUGMODE = True
         self.userpath = os.path.expanduser('~') # sames has 'cd ~/ && pwd' but safer
         self.codepath = os.path.abspath(os.path.dirname(__file__)) # gets the location of the python script
         self.codepath_list = self.codepath.split(os.sep) # split it with the division "/",
@@ -177,23 +181,34 @@ class MainWindow(QtWidgets.QMainWindow, ConfigRecomp, Ui_About, ChannelMapper, R
         self.ChannelMap.setWindowModality(QtCore.Qt.WindowModality.WindowModal) # prevent window to lose focus (close - open)
         self.ChannelMap.setWindowIcon(QIcon(f"{self.codepath}/.repo_img/icon_GUI.png"))
         self.chmap_neveropen = True
+        self.chmap = {0:'', 1:'', 2:'', 3:'', 4:'', 5:'', 6:'', 7:'',}
+        self.chmapui = {
+            0:self.cmui.chname0,
+            1:self.cmui.chname1,
+            2:self.cmui.chname2,
+            3:self.cmui.chname3,
+            4:self.cmui.chname4,
+            5:self.cmui.chname5,
+            6:self.cmui.chname6,
+            7:self.cmui.chname7
+        }
+        self.define_devices()
 
         self.cmui.loadmapb.clicked.connect(self.loadSearchMap)
         self.cmui.doneb.clicked.connect(self.doneChannelMap)
         self.cmui.cleanallb.clicked.connect(self.cleanChannelMap)
-        self.chmap = {'0':'', '1':'', '2':'', '3':'', '4':'', '5':'', '6':'', '7':'',}
-        self.chmapui = {
-            '0':self.cmui.chname0,
-            '1':self.cmui.chname1,
-            '2':self.cmui.chname2,
-            '3':self.cmui.chname3,
-            '4':self.cmui.chname4,
-            '5':self.cmui.chname5,
-            '6':self.cmui.chname6,
-            '7':self.cmui.chname7
-        }
+        self.cmui.adddevb.clicked.connect(self.showAddDev)
+        self.cmui.deldevb.clicked.connect(self.showDelDev)
+        self.cmui.chname0.currentTextChanged.connect(lambda: self.updateChMap(self.cmui.chname0,0))
+        self.cmui.chname1.currentTextChanged.connect(lambda: self.updateChMap(self.cmui.chname1,1))
+        self.cmui.chname2.currentTextChanged.connect(lambda: self.updateChMap(self.cmui.chname2,2))
+        self.cmui.chname3.currentTextChanged.connect(lambda: self.updateChMap(self.cmui.chname3,3))
+        self.cmui.chname4.currentTextChanged.connect(lambda: self.updateChMap(self.cmui.chname4,4))
+        self.cmui.chname5.currentTextChanged.connect(lambda: self.updateChMap(self.cmui.chname5,5))
+        self.cmui.chname6.currentTextChanged.connect(lambda: self.updateChMap(self.cmui.chname6,6))
+        self.cmui.chname7.currentTextChanged.connect(lambda: self.updateChMap(self.cmui.chname7,7))
 
-        # Channel map Widget setup
+        # Run log Widget setup
         self.RunLog = QtWidgets.QMainWindow()
         self.rlui = Ui_RunLog()
         self.rlui.setupUi(self.RunLog)
@@ -205,6 +220,21 @@ class MainWindow(QtWidgets.QMainWindow, ConfigRecomp, Ui_About, ChannelMapper, R
         self.rlui.doneb.clicked.connect(lambda: self.RunLog.close())
 
 
+        # Channel map add device
+        self.AddDev = QtWidgets.QMainWindow()
+        self.adddevui = Ui_AddDev()
+        self.adddevui.setupUi(self.AddDev)
+        self.AddDev.setWindowModality(QtCore.Qt.WindowModality.WindowModal) # prevent window to lose focus (close - open)
+        self.AddDev.setWindowIcon(QIcon(f"{self.codepath}/.repo_img/icon_GUI.png"))
+        self.adddevui.addb.clicked.connect(self.addDeviceToMap)
+
+        # Channel map add device
+        self.DelDev = QtWidgets.QMainWindow()
+        self.deldevui = Ui_DelDev()
+        self.deldevui.setupUi(self.DelDev)
+        self.DelDev.setWindowModality(QtCore.Qt.WindowModality.WindowModal) # prevent window to lose focus (close - open)
+        self.DelDev.setWindowIcon(QIcon(f"{self.codepath}/.repo_img/icon_GUI.png"))
+        self.deldevui.delb.clicked.connect(self.delDeviceToMap)
 
         # Setup when open
         self.getEnabledAndTrigger()
@@ -212,7 +242,6 @@ class MainWindow(QtWidgets.QMainWindow, ConfigRecomp, Ui_About, ChannelMapper, R
         self.recordlength = 0
         self.getRecordLength()
         self.loadConfig("/etc/wavedump/WaveDumpConfig.txt")
-
         self.setWindowIcon(QIcon(f"{self.codepath}/.repo_img/icon_GUI.png"))
 
 
@@ -220,40 +249,45 @@ class MainWindow(QtWidgets.QMainWindow, ConfigRecomp, Ui_About, ChannelMapper, R
         self.About.close()
         self.RunLog.close()
         self.ChannelMap.close()
+        self.AddDev.close()
 
     def showAbout(self):
         self.About.show()
 
+    def fixGeometry(self, qtwidget:QtWidgets.QMainWindow):
+        geo:QtCore.QRect
+        geo = qtwidget.geometry()
+        qtwidget.setGeometry(
+            int(self.geometry().x()+self.geometry().width()/2),
+            int(self.geometry().y()+self.geometry().height()/2),
+            geo.width(),
+            geo.height()
+        )
+
     def showRunLog(self):
-        self.runlog_geo = self.RunLog.geometry()
         if self.runlog_neveropen:
-            self.RunLog.setGeometry(
-                int(self.geometry().x()+self.geometry().width()/2),
-                int(self.geometry().y()+self.geometry().height()/2),
-                self.runlog_geo.width(),
-                self.runlog_geo.height()
-                )
+            self.fixGeometry(self.RunLog)
             self.runlog_neveropen = False
         self.RunLog.close()
         self.RunLog.show()
-        self.RunLog.show()
 
-    def showMain(self):
-        self.show()
-        
     def showChannelMap(self):
-        self.chmap_geo = self.ChannelMap.geometry()
         if self.chmap_neveropen:
-            self.RunLog.setGeometry(
-                int(self.geometry().x()+self.geometry().width()/2),
-                int(self.geometry().y()+self.geometry().height()/2),
-                self.runlog_geo.width(),
-                self.runlog_geo.height()
-                )
+            self.fixGeometry(self.ChannelMap)
             self.chmap_neveropen = False
         self.ChannelMap.close()
         self.ChannelMap.show()
 
+    def showAddDev(self):
+        self.AddDev.show()
+
+    def showDelDev(self):
+        self.DelDev.close()
+        self.updateDelList()
+        self.DelDev.show()
+
+    def showMain(self):
+        self.show()
 
     def updateToolTip(self, standard):
         if standard != "DS": text = self.writeToolTip(standard)
@@ -308,37 +342,44 @@ class MainWindow(QtWidgets.QMainWindow, ConfigRecomp, Ui_About, ChannelMapper, R
         self.getInfoDefault()
         _, mpath, folder, _, _, _ = self.genPatternInfo(False)
         self.saveConfig(mpath+folder)
+        self.saveChannelMap(mpath+folder)
+        # self.saveRunLog(mpath+folder)
     def saveConfigStyle2(self):
         self.getInfoStyle2()
         _, mpath, folder, _, _, _ = self.genPatternInfo(False)
         self.saveConfig(mpath+folder)
+        self.saveChannelMap(mpath+folder)
+        self.saveRunLog(mpath+folder)
 
     def saveConfig(self, pathconfig):
         makequestion = False
-        if os.path.exists(f'{pathconfig}/config_used.log'):
-            with open(f'{pathconfig}/config_used.log') as file_1, open('/etc/wavedump/WaveDumpConfig.txt') as file_2:
+
+        filename = 'config_used.log'
+        if os.path.exists(f'{pathconfig}/{filename}'):
+            with open(f'{pathconfig}/{filename}') as file_1, open('/etc/wavedump/WaveDumpConfig.txt') as file_2:
                 differ = Differ()
                 for line in differ.compare(file_1.readlines(), file_2.readlines()):
                     if line.startswith(("+", "-", "?")):
                         makequestion = True
                         break
                 if makequestion:
-                    answer = QMessageBox.question(self, "", "Config. file already exist in this directory with a different setting.\nOverwrite it anyway?", QMessageBox.Yes, QMessageBox.No)
+                    answer = QMessageBox.question(self, "", f"Config. file already exist in this directory with a different setting.\nOverwrite it anyway?", QMessageBox.Yes, QMessageBox.No)
                     if answer == QMessageBox.No:
                         return
-        cmdcpy = "cp /etc/wavedump/WaveDumpConfig.txt " + pathconfig + "/config_used.log"
+        cmdcpy = "cp /etc/wavedump/WaveDumpConfig.txt " + pathconfig + f"/{filename}"
         os.system(cmdcpy)
+
         # QMessageBox.about(self, "", "Config. file saved.")
 
     def fixString(self, mystring):
         mystring_split = mystring.split() # for removing all spaces
         mystring = '_'.join(mystring_split)
         mystring = mystring.replace(".", "_")
-        try: # overdoing it probably
-            if mystring[-1] == "_":
-                mystring = mystring[:-1]
-        except IndexError:
-            pass
+        # try: # overdoing it probably
+        #     if mystring[-1] == "_":
+        #         mystring = mystring[:-1]
+        # except IndexError:
+        #     pass
 
         return mystring
 
@@ -511,7 +552,11 @@ class MainWindow(QtWidgets.QMainWindow, ConfigRecomp, Ui_About, ChannelMapper, R
             transfercheck = f'{mpath}{folder}/{newname[i]}'
             fileIsThere[i] = os.path.exists(datacheck)
             FileNotThereYet[i] = not os.path.exists(transfercheck)
-            cmdmv[i] = f'mv -n ~/Desktop/WaveDumpData/{_oldname}{myformat} {mpath}{folder}/{newname[i]}'
+            if self.DEBUGMODE:
+                cmdmv[i] = f'cp -n ~/Desktop/WaveDumpData/{_oldname}{myformat} {mpath}{folder}/{newname[i]}'
+            else:
+                cmdmv[i] = f'mv -n ~/Desktop/WaveDumpData/{_oldname}{myformat} {mpath}{folder}/{newname[i]}'
+
 
 
             if self.enable_ch[i].isChecked() and fileIsThere[i] is False:
@@ -577,7 +622,7 @@ class MainWindow(QtWidgets.QMainWindow, ConfigRecomp, Ui_About, ChannelMapper, R
                     noerror.append(True)
 
         if False in noerror:
-            QMessageBox.warning(self, "Warning!", "There one or more errors transfering the files. Subrun number will change, but check what happend")
+            QMessageBox.warning(self, "Warning!", "There are one or more errors transfering the files. Subrun number will change, but check what happend")
         else:
             messageOk = f'{"{:,}".format(total_events[0])} waveforms saved per file.\n\n'
             if messageNpts != "":

@@ -22,6 +22,8 @@ set(PROJECT_SOURCES
         about.ui
         run_log.ui
         channel_map.ui
+        add_dev_channel_map.ui
+        del_dev_channel_map.ui
 )
 
 if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)

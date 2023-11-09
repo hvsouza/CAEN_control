@@ -34,5 +34,4 @@ class RunLogger():
     def loadRunLog(self, fmapchannel):
         with open(fmapchannel,'r') as file:
             self.textrunlog = file.read()
-
-        self.rlui.runlogfield.setTextCursor()
+        self.rlui.runlogfield.setPlainText(self.textrunlog)

@@ -14,7 +14,7 @@ from PyQt5 import QtCore, QtGui, QtWidgets
 class Ui_About(object):
     def setupUi(self, About):
         About.setObjectName("About")
-        About.resize(798, 298)
+        About.resize(815, 299)
         self.centralwidget = QtWidgets.QWidget(About)
         self.centralwidget.setObjectName("centralwidget")
         self.label = QtWidgets.QLabel(self.centralwidget)
@@ -26,6 +26,8 @@ class Ui_About(object):
         self.label.setObjectName("label")
         self.label_2 = QtWidgets.QLabel(self.centralwidget)
         self.label_2.setGeometry(QtCore.QRect(310, 20, 471, 421))
+        self.label_2.setMinimumSize(QtCore.QSize(471, 421))
+        self.label_2.setMaximumSize(QtCore.QSize(471, 421))
         font = QtGui.QFont()
         font.setFamily("DejaVu Sans")
         font.setPointSize(10)
@@ -38,7 +40,7 @@ class Ui_About(object):
         self.label_2.setObjectName("label_2")
         About.setCentralWidget(self.centralwidget)
         self.menubar = QtWidgets.QMenuBar(About)
-        self.menubar.setGeometry(QtCore.QRect(0, 0, 798, 26))
+        self.menubar.setGeometry(QtCore.QRect(0, 0, 815, 24))
         self.menubar.setObjectName("menubar")
         About.setMenuBar(self.menubar)
         self.statusbar = QtWidgets.QStatusBar(About)
@@ -52,13 +54,3 @@ class Ui_About(object):
         _translate = QtCore.QCoreApplication.translate
         About.setWindowTitle(_translate("About", "About"))
         self.label_2.setText(_translate("About", "<html><head/><body><p>Author: Henrique Souza<br/>email: henriquevieira.souza@gmail.com<br/><br/>This GUI interface was create to make the operation of a CAEN digitizer easier</p><p><br/>Please refer to the GitHub repository for more information:<br/><a href=\"http://github.com/hvsouza/CAEN_Control/\"><span style=\" text-decoration: underline; color:#007af4;\">CAEN Control</span></a><br/><br/>A lot of effort was put in this GUI, please read the instructions. </p></body></html>"))
-
-
-if __name__ == "__main__":
-    import sys
-    app = QtWidgets.QApplication(sys.argv)
-    About = QtWidgets.QMainWindow()
-    ui = Ui_About()
-    ui.setupUi(About)
-    About.show()
-    sys.exit(app.exec_())
