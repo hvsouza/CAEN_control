@@ -547,8 +547,33 @@
          <string>Channel map</string>
         </property>
        </widget>
+       <widget class="QRadioButton" name="askrunlog">
+        <property name="geometry">
+         <rect>
+          <x>210</x>
+          <y>290</y>
+          <width>125</width>
+          <height>25</height>
+         </rect>
+        </property>
+        <property name="toolTip">
+         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Keep asking for log?&lt;br/&gt;&lt;br/&gt;If checked, it will ask for a log each time you finish a run or move a file&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+        </property>
+        <property name="text">
+         <string>Ask for log?</string>
+        </property>
+        <property name="checked">
+         <bool>true</bool>
+        </property>
+        <property name="autoExclusive">
+         <bool>false</bool>
+        </property>
+       </widget>
       </widget>
       <widget class="QWidget" name="tab_15">
+       <property name="enabled">
+        <bool>false</bool>
+       </property>
        <attribute name="title">
         <string>Style2</string>
        </attribute>
@@ -3056,9 +3081,19 @@ The password is the same you use to login the computer.</string>
      <addaction name="USB_type"/>
      <addaction name="Optical_type"/>
     </widget>
+    <widget class="QMenu" name="menuDebug_mode">
+     <property name="toolTip">
+      <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Setting to true it will not move files, just copy empty ones&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+     </property>
+     <property name="title">
+      <string>Debug mode</string>
+     </property>
+     <addaction name="debugModeBox"/>
+    </widget>
     <addaction name="actionLoad_cofig_file"/>
     <addaction name="menuTrigger_type"/>
     <addaction name="menuConnection_type_2"/>
+    <addaction name="menuDebug_mode"/>
    </widget>
    <widget class="QMenu" name="menu_info">
     <property name="title">
@@ -3125,6 +3160,19 @@ The password is the same you use to login the computer.</string>
    </property>
    <property name="text">
     <string>Optical</string>
+   </property>
+  </action>
+  <action name="actionkk">
+   <property name="text">
+    <string>kk</string>
+   </property>
+  </action>
+  <action name="debugModeBox">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Enable</string>
    </property>
   </action>
  </widget>

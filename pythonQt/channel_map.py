@@ -170,7 +170,6 @@ class ChannelMapper():
             QMessageBox.critical(self, "ERROR!", "Could not save the devices name")
 
     def saveChannelMap(self, pathconfig):
-        makequestion = False
 
         filename = 'channelmap.log'
         fchmap = f'{pathconfig}/{filename}'
@@ -188,6 +187,8 @@ class ChannelMapper():
             for i, (chidx, name) in enumerate(zip(chtowrite,nametowrite)):
                 if not name.split():
                     QMessageBox.warning(self, "WARNING!!!", f"Ch.{chidx} has no name set?")
+        else:
+            return
 
 
 
@@ -199,7 +200,7 @@ class ChannelMapper():
                     for x in linedump:
                         dumpnames.append(x['name'])
             except IOError:
-                QMessageBox.critical(self, "ERROR!", "Someting went wrong :x")
+                QMessageBox.critical(self, "ERROR!", "Something went wrong :x")
             if dumpnames != nametowrite:
                 answer = QMessageBox.question(self, "", f"Channel map file already exist in this directory with a different map.\nOverwrite it anyway?", QMessageBox.Yes, QMessageBox.No)
                 if answer == QMessageBox.No:

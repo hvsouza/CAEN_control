@@ -18,6 +18,7 @@ from ui_run_log import Ui_RunLog
 from ui_channel_map import Ui_ChannelMap
 from ui_add_dev_channel_map import Ui_AddDev
 from ui_del_dev_channel_map import Ui_DelDev
+from ui_dialog_runlog import Ui_Dialog_RunLog
 
 from PyQt5 import QtCore, QtGui, QtWidgets
 from PyQt5.QtWidgets import QMessageBox, QFileDialog
@@ -33,7 +34,7 @@ import subprocess as sp
 
 from difflib import Differ
 
-class MainWindow(QtWidgets.QMainWindow, ConfigRecomp, Ui_About, ChannelMapper, RunLogger):
+class MainWindow(QtWidgets.QMainWindow, ConfigRecomp, ChannelMapper, RunLogger):
     def __init__(self,parent=None):
         super(MainWindow, self).__init__()
 
@@ -42,7 +43,7 @@ class MainWindow(QtWidgets.QMainWindow, ConfigRecomp, Ui_About, ChannelMapper, R
 
 
         self.nchannels = 8
-        self.DEBUGMODE = True
+        self.DEBUGMODE = False
         self.userpath = os.path.expanduser('~') # sames has 'cd ~/ && pwd' but safer
         self.codepath = os.path.abspath(os.path.dirname(__file__)) # gets the location of the python script
         self.codepath_list = self.codepath.split(os.sep) # split it with the division "/",
@@ -66,11 +67,14 @@ class MainWindow(QtWidgets.QMainWindow, ConfigRecomp, Ui_About, ChannelMapper, R
         self.block = ""
 
         # Control the moving functions
+        self.keep_ask_log = True
+        self.nofilesmove = True
         self.ui.button_movefile.clicked.connect(self.style2_move)
         self.ui.button_movefile_5.clicked.connect(self.default_move)
-        self.ui.pushButton_2.clicked.connect(lambda: self.finishRun(self.ui.run, self.ui.subrun))
-        self.ui.pushButton_4.clicked.connect(lambda: self.finishRun(self.ui.run_3, self.ui.subrun3))
+        self.ui.pushButton_2.clicked.connect(lambda: self.finishRun(self.ui.run, self.ui.subrun, 'S'))
+        self.ui.pushButton_4.clicked.connect(lambda: self.finishRun(self.ui.run_3, self.ui.subrun3, 'D'))
         self.ui.lock_folder.toggled.connect(self.lock_unlock)
+        self.ui.askrunlog.toggled.connect(self.setAskRunLog)
 
         self.ui.button_movefile_5.setToolTip(self.writeToolTip("D"))
         self.ui.button_movefile.setToolTip(self.writeToolTip("S"))
@@ -216,8 +220,13 @@ class MainWindow(QtWidgets.QMainWindow, ConfigRecomp, Ui_About, ChannelMapper, R
         self.RunLog.setWindowIcon(QIcon(f"{self.codepath}/.repo_img/icon_GUI.png"))
         self.runlog_neveropen = True
 
+        self.diag = QtWidgets.QDialog()
+        self.diagui = Ui_Dialog_RunLog()
+        self.diagui.setupUi(self.diag)
+
+        self.standardlog = "Keep this line or empty to not save"
         self.rlui.loadb.clicked.connect(self.loadSearchRunLog)
-        self.rlui.doneb.clicked.connect(lambda: self.RunLog.close())
+        self.rlui.doneb.clicked.connect(self.closeRunLog)
 
 
         # Channel map add device
@@ -236,6 +245,10 @@ class MainWindow(QtWidgets.QMainWindow, ConfigRecomp, Ui_About, ChannelMapper, R
         self.DelDev.setWindowIcon(QIcon(f"{self.codepath}/.repo_img/icon_GUI.png"))
         self.deldevui.delb.clicked.connect(self.delDeviceToMap)
 
+
+        # Debug mode button
+        self.ui.debugModeBox.toggled.connect(self.setDebugMode)
+
         # Setup when open
         self.getEnabledAndTrigger()
 
@@ -245,6 +258,7 @@ class MainWindow(QtWidgets.QMainWindow, ConfigRecomp, Ui_About, ChannelMapper, R
         self.setWindowIcon(QIcon(f"{self.codepath}/.repo_img/icon_GUI.png"))
 
 
+        
     def closeEvent(self, event):
         self.About.close()
         self.RunLog.close()
@@ -264,11 +278,18 @@ class MainWindow(QtWidgets.QMainWindow, ConfigRecomp, Ui_About, ChannelMapper, R
             geo.height()
         )
 
+    def showDiagRunLog(self):
+        self.diagui.runlogfield.setPlainText(self.rlui.runlogfield.toPlainText())
+        ret = self.diag.exec_()
+        if ret:
+            self.rlui.runlogfield.setPlainText(self.diagui.runlogfield.toPlainText())
+        return ret
+
     def showRunLog(self):
         if self.runlog_neveropen:
             self.fixGeometry(self.RunLog)
             self.runlog_neveropen = False
-        self.RunLog.close()
+        self.closeRunLog()
         self.RunLog.show()
 
     def showChannelMap(self):
@@ -342,14 +363,10 @@ class MainWindow(QtWidgets.QMainWindow, ConfigRecomp, Ui_About, ChannelMapper, R
         self.getInfoDefault()
         _, mpath, folder, _, _, _ = self.genPatternInfo(False)
         self.saveConfig(mpath+folder)
-        self.saveChannelMap(mpath+folder)
-        # self.saveRunLog(mpath+folder)
     def saveConfigStyle2(self):
         self.getInfoStyle2()
         _, mpath, folder, _, _, _ = self.genPatternInfo(False)
         self.saveConfig(mpath+folder)
-        self.saveChannelMap(mpath+folder)
-        self.saveRunLog(mpath+folder)
 
     def saveConfig(self, pathconfig):
         makequestion = False
@@ -368,8 +385,11 @@ class MainWindow(QtWidgets.QMainWindow, ConfigRecomp, Ui_About, ChannelMapper, R
                         return
         cmdcpy = "cp /etc/wavedump/WaveDumpConfig.txt " + pathconfig + f"/{filename}"
         os.system(cmdcpy)
-
         # QMessageBox.about(self, "", "Config. file saved.")
+
+        self.saveChannelMap(pathconfig)
+        self.saveRunLog(pathconfig)
+
 
     def fixString(self, mystring):
         mystring_split = mystring.split() # for removing all spaces
@@ -449,6 +469,7 @@ class MainWindow(QtWidgets.QMainWindow, ConfigRecomp, Ui_About, ChannelMapper, R
             self.saveConfigDefault()
             self.subrun[0] += 1
             self.ui.subrun3.setText(str(self.subrun[0]))
+            self.nofilesmove = False
 
     def style2_move(self):
         emptyruns = self.getInfoStyle2()
@@ -459,6 +480,7 @@ class MainWindow(QtWidgets.QMainWindow, ConfigRecomp, Ui_About, ChannelMapper, R
             self.saveConfigStyle2()
             self.subrun[0] += 1
             self.ui.subrun.setText(str(self.subrun[0]))
+            self.nofilesmove = False
 
 
 
@@ -553,7 +575,7 @@ class MainWindow(QtWidgets.QMainWindow, ConfigRecomp, Ui_About, ChannelMapper, R
             fileIsThere[i] = os.path.exists(datacheck)
             FileNotThereYet[i] = not os.path.exists(transfercheck)
             if self.DEBUGMODE:
-                cmdmv[i] = f'cp -n ~/Desktop/WaveDumpData/{_oldname}{myformat} {mpath}{folder}/{newname[i]}'
+                cmdmv[i] = f'cp --attributes-only ~/Desktop/WaveDumpData/{_oldname}{myformat} {mpath}{folder}/{newname[i]}'
             else:
                 cmdmv[i] = f'mv -n ~/Desktop/WaveDumpData/{_oldname}{myformat} {mpath}{folder}/{newname[i]}'
 
@@ -632,16 +654,23 @@ class MainWindow(QtWidgets.QMainWindow, ConfigRecomp, Ui_About, ChannelMapper, R
             QMessageBox.about(self, "", messageOk)
         return True
 
-    def finishRun(self, runLine, subrunLine):
+    def finishRun(self, runLine, subrunLine, movetype):
         ret = QMessageBox.question(self, "", "Finish this run?", QMessageBox.Yes, QMessageBox.No)
 
         if ret == QMessageBox.Yes:
+            if movetype == 'D':
+                self.getInfoDefault()
+            elif movetype == 'S':
+                self.getInfoStyle2
+            _, mpath, folder, _, _, _ = self.genPatternInfo(False)
+            self.saveRunLog(mpath+folder, True)
             QMessageBox.about(self, "", "New run!")
             self.run[0] = int(runLine.text())
             self.run[0] += 1
             runLine.setText(str(self.run[0]))
             self.subrun[0] = 0
             subrunLine.setText(str(self.subrun[0]))
+            self.nofilesmove = True
 
 
     def lock_unlock(self):
@@ -649,6 +678,9 @@ class MainWindow(QtWidgets.QMainWindow, ConfigRecomp, Ui_About, ChannelMapper, R
             self.ui.primary_name.setEnabled(False)
         else:
             self.ui.primary_name.setEnabled(True)
+
+    def setDebugMode(self):
+        self.DEBUGMODE = self.ui.debugModeBox.isChecked()
 
 
 
