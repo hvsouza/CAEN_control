@@ -132,7 +132,6 @@ class ConfigRecomp():
                 # this get content lines and their position
                 alllines = [line.rstrip() for line in f]  # replace \n by nothing
                 lines = [line for line in alllines if line and not line.startswith('#')]  # only non empty and no commented
-                # self.ui = Ui_MainWindow()
 
                 # OPEN USB 0 0
                 # # OPEN: open the digitizer
@@ -310,6 +309,18 @@ class ConfigRecomp():
                 # this get content lines and their position
                 alllines = [[pos,line.rstrip()] for pos, line in enumerate(f)]
                 lines = [[line[0], line[1]] for line in alllines if line[1] and not line[1].startswith('#')]
+
+
+                # This for is only for searching user 'register' configuration that might be changed manually
+                self.register_command = []
+                for i, [pos,line] in enumerate(lines):
+                    if alllines[pos][1].startswith(("WRITE_REGISTER", "ADDRESS", "DATA", "MASK")):
+                        self.register_command.append(alllines[pos][1])
+
+                for idx, regcmd in enumerate(self.register_command):
+                    if regcmd != "":
+                        replace.insert(11+idx, regcmd)
+
 
                 # replace the common structure of the file
                 for i, (rep,[pos,line]) in enumerate(zip(replace,lines)):

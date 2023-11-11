@@ -36,13 +36,36 @@ class ChannelMapper():
         self.ChannelMap.close()
 
     def updateChMap(self, chk_ui:QtWidgets.QComboBox, k):
-        self.chmap[k] = chk_ui.currentText()
+        val:QtWidgets.QComboBox
+        currentText = chk_ui.currentText()
+        if len(currentText.split('(IN USE)')) > 1:
+            chk_ui.setCurrentIndex(0)
+            return
+        self.chmap[k] = currentText
+
+        for key, val in self.chmapui.items():
+            currentidx = val.currentIndex()
+            currenttext = val.currentText().split('(IN USE) ')[-1]
+            for i in range(val.count()):
+                chopt = val.itemText(i).split('(IN USE) ')[-1]
+                if not chopt.strip(): continue
+                if chopt in self.chmap.values() and chopt != currenttext:
+                    val.setItemText(i,f'(IN USE) {chopt}')
+                else:
+                    val.setItemText(i, chopt)
+
+
+
+                
+
 
     def retrieveChannelMap(self):
         v:QtWidgets.QComboBox
         for k, v in self.chmapui.items():
             if v.currentText() in self.alldevs:
                 self.chmap[k] = v.currentText()
+                if len(self.chmap[k].split('(IN USE)')) > 1:
+                    QMessageBox.critical(self, "ERROR!", "This error should never pop !!!!\nClick at the question mark and send some feedback email please")
             else:
                 v.setCurrentIndex(0)
                 self.chmap[k] = ''
@@ -164,7 +187,8 @@ class ChannelMapper():
         try:
             with open(self.filedevice,"w") as f:
                 for v in self.alldevs:
-                    f.write(v+"\n")
+                    if v.strip():
+                        f.write(v+"\n")
 
         except IOError:
             QMessageBox.critical(self, "ERROR!", "Could not save the devices name")
