@@ -3090,8 +3090,17 @@ The password is the same you use to login the computer.</string>
      </property>
      <addaction name="debugModeBox"/>
     </widget>
+    <widget class="QMenu" name="menuConfigure">
+     <property name="title">
+      <string>Configure</string>
+     </property>
+     <addaction name="set_config_file"/>
+     <addaction name="set_data_origin"/>
+     <addaction name="select_as_secondary"/>
+    </widget>
     <addaction name="actionLoad_cofig_file"/>
     <addaction name="menuTrigger_type"/>
+    <addaction name="menuConfigure"/>
     <addaction name="menuConnection_type_2"/>
     <addaction name="menuDebug_mode"/>
    </widget>
@@ -3173,6 +3182,24 @@ The password is the same you use to login the computer.</string>
    </property>
    <property name="text">
     <string>Enable</string>
+   </property>
+  </action>
+  <action name="set_config_file">
+   <property name="text">
+    <string>Set config. file</string>
+   </property>
+  </action>
+  <action name="set_data_origin">
+   <property name="text">
+    <string>Set data origin</string>
+   </property>
+  </action>
+  <action name="select_as_secondary">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Set as secondary ADC</string>
    </property>
   </action>
  </widget>

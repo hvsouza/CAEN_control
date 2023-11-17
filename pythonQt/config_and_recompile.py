@@ -305,9 +305,9 @@ class ConfigRecomp():
 
         try:
 
-            with open("/etc/wavedump/WaveDumpConfig.txt", "r+") as f:
+            with open(self.standard_config_file, "r+") as f:
                 # this get content lines and their position
-                alllines = [[pos,line.rstrip()] for pos, line in enumerate(f)]
+                alllines = [[pos, line.rstrip()] for pos, line in enumerate(f)]
                 lines = [[line[0], line[1]] for line in alllines if line[1] and not line[1].startswith('#')]
 
 

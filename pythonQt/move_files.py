@@ -66,6 +66,8 @@ class MainWindow(QtWidgets.QMainWindow, ConfigRecomp, ChannelMapper, RunLogger):
         self.subrun = [0]
         self.block = ""
 
+        self.isprimary = True # set this gui to primary digitizer (in case of 2 in use)
+
         # Control the moving functions
         self.keep_ask_log = True
         self.nofilesmove = True
@@ -93,6 +95,7 @@ class MainWindow(QtWidgets.QMainWindow, ConfigRecomp, ChannelMapper, RunLogger):
         self.ui.trigger_channel.textChanged.connect(lambda: self.updateToolTip("S"))
 
         #control config and compile
+        self.standard_config_file = "/etc/wavedump/WaveDumpConfig.txt"
         self.enable_ch = [
             self.ui.enable1,
             self.ui.enable2,
@@ -179,6 +182,11 @@ class MainWindow(QtWidgets.QMainWindow, ConfigRecomp, ChannelMapper, RunLogger):
         self.aui.label.setPixmap(QtGui.QPixmap(f"{self.codepath}/.repo_img/computer-nerd.jpg"))
         self.aui.label_2.setOpenExternalLinks(True)
 
+
+        self.ui.set_data_origin.triggered.connect(self.setDataOrigin)
+        self.ui.set_config_file.triggered.connect(self.setConfigFile)
+        self.ui.select_as_secondary.toggled.connect(self.setAsSecondary)
+
         # Channel map Widget setup
         self.ChannelMap = QtWidgets.QMainWindow()
         self.cmui = Ui_ChannelMap()
@@ -255,7 +263,7 @@ class MainWindow(QtWidgets.QMainWindow, ConfigRecomp, ChannelMapper, RunLogger):
 
         self.recordlength = 0
         self.getRecordLength()
-        self.loadConfig("/etc/wavedump/WaveDumpConfig.txt")
+        self.loadConfig(self.standard_config_file)
         self.setWindowIcon(QIcon(f"{self.codepath}/.repo_img/icon_GUI.png"))
 
 
@@ -310,6 +318,38 @@ class MainWindow(QtWidgets.QMainWindow, ConfigRecomp, ChannelMapper, RunLogger):
 
     def showMain(self):
         self.show()
+
+    def setConfigFile(self):
+        dirnow = self.ui.primary_name.text()
+        mfile, mfilter = QtWidgets.QFileDialog.getOpenFileName(self, "Find Files", f'{self.default_path}/{dirnow}', "*.txt")
+
+        if not mfile: # if nothing was selected, get out
+            return
+
+        try:
+            with open(mfile,'r') as f:
+                # this get content lines and their position
+                alllines = [line.rstrip() for line in f]
+                lines = [line for line in alllines if line and not line.startswith('#')]
+                if lines[0] != '[COMMON]':
+                    QMessageBox.critical(self, 'ERROR!!!', f"The file choosen does not seems to be a wavedump configuration file.\nKeeping {self.standard_config_file} as default.")
+                    return
+        except IOError:
+            QMessageBox.critical(self, "ERROR!", "Could not open new config. file")
+            return
+
+        self.standard_config_file = mfile
+        self.loadConfig(mfile)
+
+    def setDataOrigin(self):
+        dirnow = self.ui.primary_name.text()
+        directory = QtWidgets.QFileDialog.getExistingDirectory(self, "Find Files", f'{self.default_path}/{dirnow}')
+        if directory:
+            self.standard_data_origin = f'{directory}/'
+
+    def setAsSecondary(self):
+        self.isprimary = not self.ui.select_as_secondary.isChecked()
+
 
     def updateToolTip(self, standard):
         if standard != "DS": text = self.writeToolTip(standard)
@@ -373,8 +413,10 @@ class MainWindow(QtWidgets.QMainWindow, ConfigRecomp, ChannelMapper, RunLogger):
         makequestion = False
 
         filename = 'config_used.log'
+        if not self.isprimary:
+            filename = 'config_used_2.log'
         if os.path.exists(f'{pathconfig}/{filename}'):
-            with open(f'{pathconfig}/{filename}') as file_1, open('/etc/wavedump/WaveDumpConfig.txt') as file_2:
+            with open(f'{pathconfig}/{filename}') as file_1, open(self.standard_config_file) as file_2:
                 differ = Differ()
                 for line in differ.compare(file_1.readlines(), file_2.readlines()):
                     if line.startswith(("+", "-", "?")):
@@ -384,7 +426,7 @@ class MainWindow(QtWidgets.QMainWindow, ConfigRecomp, ChannelMapper, RunLogger):
                     answer = QMessageBox.question(self, "", f"Config. file already exist in this directory with a different setting.\nOverwrite it anyway?", QMessageBox.Yes, QMessageBox.No)
                     if answer == QMessageBox.No:
                         return
-        cmdcpy = "cp /etc/wavedump/WaveDumpConfig.txt " + pathconfig + f"/{filename}"
+        cmdcpy = f"cp {self.standard_config_file} " + pathconfig + f"/{filename}"
         os.system(cmdcpy)
         # QMessageBox.about(self, "", "Config. file saved.")
 
@@ -438,7 +480,6 @@ class MainWindow(QtWidgets.QMainWindow, ConfigRecomp, ChannelMapper, RunLogger):
             self.block = block1
         else:
             self.block = block2
-        # print(self.block)
         return False
 
     def getInfoStyle2(self):
@@ -496,11 +537,14 @@ class MainWindow(QtWidgets.QMainWindow, ConfigRecomp, ChannelMapper, RunLogger):
         if self.block != "":
             folder = folder + "_" + self.block
 
-        oldname = [f"wave{i}" for i in range(self.nchannels)]
+        oldname = [f"wave{i}" for i in range(self.nchannels)] # wave0, wave1, etc (normal)
+        addidx = 0 if self.isprimary else self.nchannels
+        waveN_name = [f"wave{i+addidx}" for i in range(self.nchannels)]
+
         myformat = self.ui.file_type.text()
 
         newname = [""]*self.nchannels
-        for i, namej in enumerate(oldname):
+        for i, namej in enumerate(waveN_name):
 
             newname[i] = f'{self.subrun[0]}_{namej}'
 
@@ -556,7 +600,7 @@ class MainWindow(QtWidgets.QMainWindow, ConfigRecomp, ChannelMapper, RunLogger):
 
         mkdir, mpath, folder, oldname, newname, myformat = self.genPatternInfo()
 
-        datapath = f'{self.userpath}/Desktop/WaveDumpData/'
+        datapath = self.standard_data_origin
 
         fileIsThere = [False]*self.nchannels
         FileNotThereYet = [True]*self.nchannels
@@ -576,9 +620,9 @@ class MainWindow(QtWidgets.QMainWindow, ConfigRecomp, ChannelMapper, RunLogger):
             fileIsThere[i] = os.path.exists(datacheck)
             FileNotThereYet[i] = not os.path.exists(transfercheck)
             if self.DEBUGMODE:
-                cmdmv[i] = f'cp --attributes-only ~/Desktop/WaveDumpData/{_oldname}{myformat} {mpath}{folder}/{newname[i]}'
+                cmdmv[i] = f'cp --attributes-only {self.standard_data_origin}{_oldname}{myformat} {mpath}{folder}/{newname[i]}'
             else:
-                cmdmv[i] = f'mv -n ~/Desktop/WaveDumpData/{_oldname}{myformat} {mpath}{folder}/{newname[i]}'
+                cmdmv[i] = f'mv -n {self.standard_data_origin}{_oldname}{myformat} {mpath}{folder}/{newname[i]}'
 
 
 
