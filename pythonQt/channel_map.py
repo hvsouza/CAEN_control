@@ -197,6 +197,9 @@ class ChannelMapper():
     def saveChannelMap(self, pathconfig):
 
         filename = 'channelmap.log'
+        if not self.isprimary:
+            filename = 'channelmap_2.log'
+
         fchmap = f'{pathconfig}/{filename}'
         nametowrite = []
         chtowrite = []
@@ -224,6 +227,7 @@ class ChannelMapper():
                     linedump = csv.DictReader(csvfile, delimiter=',')
                     for x in linedump:
                         dumpnames.append(x['name'])
+            except IOError:
                 QMessageBox.critical(self, "ERROR!", "Something went wrong :x")
             if dumpnames != nametowrite:
                 answer = QMessageBox.question(self, "", f"Channel map file already exist in this directory with a different map.\nOverwrite it anyway?", QMessageBox.Yes, QMessageBox.No)

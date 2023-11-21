@@ -42,6 +42,9 @@ class RunLogger():
     def saveRunLog(self, pathconfig, finishingrun = False):
 
         filename = 'runlog.info'
+        if not self.isprimary:
+            filename = 'runlog_2.info'
+
         frunlog = f'{pathconfig}/{filename}'
 
         texttowrite = self.rlui.runlogfield.toPlainText() # get whatever is already there...
