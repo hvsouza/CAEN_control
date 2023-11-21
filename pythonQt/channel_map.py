@@ -158,11 +158,12 @@ class ChannelMapper():
         if newdev.split():
             if newdev.capitalize() in self.alldevs_cap:
                 QMessageBox.warning(self, "WARNING!!!", "Device already exist! Check capitalization.")
-            self.alldevs.add(newdev)
-            self.alldevs_cap.add(newdev.capitalize())
-            self.alldevs = sorted(self.alldevs)
-            self.fillItemsMap()
-            self.adddevui.devname.setText('')
+            else:
+                self.alldevs.add(newdev)
+                self.alldevs_cap.add(newdev.capitalize())
+                self.alldevs = sorted(self.alldevs)
+                self.fillItemsMap()
+                self.adddevui.devname.setText('')
         self.AddDev.close()
         self.updateMapListFile()
         self.showChannelMap()
@@ -210,7 +211,7 @@ class ChannelMapper():
         if not all_empty:
             for i, (chidx, name) in enumerate(zip(chtowrite,nametowrite)):
                 if not name.split():
-                    QMessageBox.warning(self, "WARNING!!!", f"Ch.{chidx} has no name set?")
+                    QMessageBox.warning(self, "WARNING!!!", f"Ch.{chidx} has no name set")
         else:
             return
 
@@ -223,7 +224,6 @@ class ChannelMapper():
                     linedump = csv.DictReader(csvfile, delimiter=',')
                     for x in linedump:
                         dumpnames.append(x['name'])
-            except IOError:
                 QMessageBox.critical(self, "ERROR!", "Something went wrong :x")
             if dumpnames != nametowrite:
                 answer = QMessageBox.question(self, "", f"Channel map file already exist in this directory with a different map.\nOverwrite it anyway?", QMessageBox.Yes, QMessageBox.No)

@@ -1,7 +1,7 @@
 #!/bin/python3
 ## ________________________________________ ##
 ## Author: Henrique Souza
-## Filename: move_files.py
+## Filename: daq_gui.py
 ## Created: 2022
 ## ________________________________________ ##
 
@@ -63,6 +63,7 @@ class MainWindow(QtWidgets.QMainWindow, ConfigRecomp, ChannelMapper, RunLogger, 
         self.ui.samplingRate_2.setCurrentText(self.sampling_set)
         self.ui.adcMaximumRate.setCurrentText(self.sampling_original)
         self.default_path = f'{self.userpath}/Documents/ADC_data/BLEND_data/'
+        self.standard_data_origin = f'{self.userpath}/Desktop/WaveDumpData/'
         self.create_path()
         self.ui.browse_dir.clicked.connect(self.getDir)
         self.primary = self.ui.primary_name.text()
