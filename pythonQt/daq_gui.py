@@ -38,6 +38,8 @@ import subprocess as sp
 
 from difflib import Differ
 
+import numpy as np
+
 class MainWindow(QtWidgets.QMainWindow, ConfigRecomp, ChannelMapper, RunLogger, RegisterWritter):
     def __init__(self,parent=None):
         super(MainWindow, self).__init__()
@@ -68,7 +70,6 @@ class MainWindow(QtWidgets.QMainWindow, ConfigRecomp, ChannelMapper, RunLogger, 
         self.ui.browse_dir.clicked.connect(self.getDir)
         self.primary = self.ui.primary_name.text()
         self.run = [0]
-        self.subrun = [0]
         self.block = ""
 
         self.isprimary = True # set this gui to primary digitizer (in case of 2 in use)
@@ -78,8 +79,6 @@ class MainWindow(QtWidgets.QMainWindow, ConfigRecomp, ChannelMapper, RunLogger, 
         self.nofilesmove = True
         self.ui.button_movefile.clicked.connect(self.style2_move)
         self.ui.button_movefile_5.clicked.connect(self.default_move)
-        self.ui.pushButton_2.clicked.connect(lambda: self.finishRun(self.ui.run, self.ui.subrun, 'S'))
-        self.ui.pushButton_4.clicked.connect(lambda: self.finishRun(self.ui.run_3, self.ui.subrun3, 'D'))
         self.ui.lock_folder.toggled.connect(self.lock_unlock)
         self.ui.askrunlog.toggled.connect(self.setAskRunLog)
 
@@ -89,12 +88,10 @@ class MainWindow(QtWidgets.QMainWindow, ConfigRecomp, ChannelMapper, RunLogger, 
         self.ui.primary_name.textChanged.connect(lambda: self.updateToolTip("DS"))
 
         self.ui.run_3.textChanged.connect(lambda: self.updateToolTip("D"))
-        self.ui.subrun3.textChanged.connect(lambda: self.updateToolTip("D"))
         self.ui.block1.textChanged.connect(lambda: self.updateToolTip("D"))
         self.ui.block2.textChanged.connect(lambda: self.updateToolTip("D"))
 
         self.ui.run.textChanged.connect(lambda: self.updateToolTip("S"))
-        self.ui.subrun.textChanged.connect(lambda: self.updateToolTip("S"))
         self.ui.voltage.textChanged.connect(lambda: self.updateToolTip("S"))
         self.ui.threshold.textChanged.connect(lambda: self.updateToolTip("S"))
         self.ui.trigger_channel.textChanged.connect(lambda: self.updateToolTip("S"))
@@ -311,6 +308,8 @@ class MainWindow(QtWidgets.QMainWindow, ConfigRecomp, ChannelMapper, RunLogger, 
         self.regui.manual_edit.setChecked(False)
         self.regui.manual_edit.clicked.connect(self.toggle_manual_edit_reg)
         self.regui.doneb.clicked.connect(self.closeRegister)
+        self.regui.setb.clicked.connect(self.setRegister)
+        self.regui.clearb.clicked.connect(self.clearRegister)
         self.regui.applyb.clicked.connect(self.add_register)
 
         self.register_commands = ""
@@ -437,7 +436,7 @@ class MainWindow(QtWidgets.QMainWindow, ConfigRecomp, ChannelMapper, RunLogger, 
             emptyruns = self.getInfoStyle2()
 
         if emptyruns:
-            return f'Error: run or subrun is empty'
+            return f'Error: run is empty'
         _, mpath, folder, _, _, _ = self.genPatternInfo(False)
 
         return f'Currently folders are going to be transfered to:\n{mpath}{folder}'
@@ -521,21 +520,20 @@ class MainWindow(QtWidgets.QMainWindow, ConfigRecomp, ChannelMapper, RunLogger, 
         try:
             val[0] = int(uival.text())
         except ValueError:
-            QMessageBox.critical(self, "ERROR!","Run and Subruns should be unsigned integers")
+            QMessageBox.critical(self, "ERROR!","Run should be unsigned integers")
             uival.undo()
             val[0] = int(uival.text())
             return True
 
         return False
 
-    def getRunSubrun(self, run, subrun):
+    def getRunSubrun(self, run):
         getout = False
         getout = self.checkInt(self.run, run)
-        getout = getout or self.checkInt(self.subrun, subrun) # if there is a problem, they return True
         return getout
 
     def getInfoDefault(self):
-        getout = self.getRunSubrun(self.ui.run_3, self.ui.subrun3)
+        getout = self.getRunSubrun(self.ui.run_3)
         if getout:
             self.block = ""
             return True
@@ -552,7 +550,7 @@ class MainWindow(QtWidgets.QMainWindow, ConfigRecomp, ChannelMapper, RunLogger, 
         return False
 
     def getInfoStyle2(self):
-        getout = self.getRunSubrun(self.ui.run, self.ui.subrun)
+        getout = self.getRunSubrun(self.ui.run)
         if getout:
             self.block = ""
             return True
@@ -573,24 +571,27 @@ class MainWindow(QtWidgets.QMainWindow, ConfigRecomp, ChannelMapper, RunLogger, 
     def default_move(self):
         emptyruns = self.getInfoDefault()
         if emptyruns:
-            QMessageBox.critical(self, "ERROR", "Run or subrun numbers are empty")
+            QMessageBox.critical(self, "ERROR", "Run number is empty")
             return
-        status = self.moveFiles()
+        ret = QMessageBox.question(self, "", "Move files and finish this run?", QMessageBox.Yes, QMessageBox.No)
+
+        if ret == QMessageBox.Yes:
+            status, messageOk = self.moveFiles()
+        else:
+            return
         if status:
             self.saveConfigDefault()
-            self.subrun[0] += 1
-            self.ui.subrun3.setText(str(self.subrun[0]))
             self.nofilesmove = False
+            self.finishRun(self.ui.run_3, 'D')
+            QMessageBox.about(self, "", messageOk)
 
     def style2_move(self):
         emptyruns = self.getInfoStyle2()
         if emptyruns:
-            QMessageBox.critical(self, "ERROR", "Run or subrun numbers are empty")
-        status = self.moveFiles()
+            QMessageBox.critical(self, "ERROR", "Run is empty")
+        status, messageOk = self.moveFiles()
         if status:
             self.saveConfigStyle2()
-            self.subrun[0] += 1
-            self.ui.subrun.setText(str(self.subrun[0]))
             self.nofilesmove = False
 
 
@@ -615,7 +616,7 @@ class MainWindow(QtWidgets.QMainWindow, ConfigRecomp, ChannelMapper, RunLogger, 
         newname = [""]*self.nchannels
         for i, namej in enumerate(waveN_name):
 
-            newname[i] = f'{self.subrun[0]}_{namej}'
+            newname[i] = f'0_{namej}'
 
             if self.block != "":
                 newname[i] = newname[i] + "_" + self.block
@@ -677,6 +678,7 @@ class MainWindow(QtWidgets.QMainWindow, ConfigRecomp, ChannelMapper, RunLogger, 
         errorMessage = ""
         errorMessage2 = ""
         messageNpts = ""
+        messageOpenFile = ""
 
         actual_pts_saved = []
         total_events = []
@@ -685,14 +687,15 @@ class MainWindow(QtWidgets.QMainWindow, ConfigRecomp, ChannelMapper, RunLogger, 
         isCritical = False
         for i, _oldname in enumerate(oldname):
             datacheck = datapath+f'{_oldname}{myformat}'
-            transfercheck = f'{mpath}{folder}/{newname[i]}'
+            transfercheck = f'{mpath}{folder}/{newname[i]}' # the new data will have this name
+            # check if files that are going to be transfered are there
             fileIsThere[i] = os.path.exists(datacheck)
+            # check there data will not be overwritten
             FileNotThereYet[i] = not os.path.exists(transfercheck)
             if self.DEBUGMODE:
-                cmdmv[i] = f'cp --attributes-only {self.standard_data_origin}{_oldname}{myformat} {mpath}{folder}/{newname[i]}'
+                cmdmv[i] = f'cp --attributes-only {self.standard_data_origin}{_oldname}{myformat} {transfercheck}'
             else:
-                cmdmv[i] = f'mv -n {self.standard_data_origin}{_oldname}{myformat} {mpath}{folder}/{newname[i]}'
-
+                cmdmv[i] = f'mv -n {self.standard_data_origin}{_oldname}{myformat} {transfercheck}'
 
 
             if self.enable_ch[i].isChecked() and fileIsThere[i] is False:
@@ -700,31 +703,40 @@ class MainWindow(QtWidgets.QMainWindow, ConfigRecomp, ChannelMapper, RunLogger, 
             elif self.enable_ch[i].isChecked() is False and fileIsThere[i] is False:
                 fileIsThere[i] = None
             elif self.enable_ch[i].isChecked() and FileNotThereYet[i] is False:
-                errorMessage2 = f'{errorMessage2}The file \'{mpath}{folder}/{newname[i]} \'already exist, please check the run and subrun number!\n'
+                errorMessage2 = f'{errorMessage2}The file \'{transfercheck} \'already exist, please check the run number!\n'
             elif self.enable_ch[i].isChecked():
-                if myformat == ".dat":
-                    _actual_pts_saved, _total_events = self.getInfoBinary(datacheck)
+                pids = self.checkFileIsOpen(datacheck)
+                if pids['INUSE'] == False:
+                    if myformat == ".dat":
+                        _actual_pts_saved, _total_events = self.getInfoBinary(datacheck)
+                    else:
+                        _actual_pts_saved, _total_events = self.getInfoASCII(datacheck)
+                    actual_pts_saved.append(_actual_pts_saved)
+                    total_events.append(_total_events)
+                    idx_total_events.append(i)
+                    if actual_pts_saved[aux] != self.recordsaved:
+                        messageNpts = f'{messageNpts}Ch{i} has {actual_pts_saved[aux]} pts per waveforms.\n'
+                    if len(set(actual_pts_saved))!=1:
+                        messageNpts = f'{messageNpts}Number of pts per waveform are not equal in all files!!!\n\nFiles were not transfered.'
+                        isCritical = True
+                    aux += 1
                 else:
-                    _actual_pts_saved, _total_events = self.getInfoASCII(datacheck)
-                actual_pts_saved.append(_actual_pts_saved)
-                total_events.append(_total_events)
-                idx_total_events.append(i)
-                if actual_pts_saved[aux] != self.recordsaved:
-                    messageNpts = f'{messageNpts}Ch{i} has {actual_pts_saved[aux]} pts per waveforms.\n'
-                if len(set(actual_pts_saved))!=1:
-                    messageNpts = f'{messageNpts}Number of pts per waveform are not equal in all files!!!\n\nFiles were not transfered.'
-                    isCritical = True
-                aux += 1
+                    messageOpenFile = f"The file {datacheck} is open, by these process {pids['PID']}, command: {pids['COMMAND']}"
+                    break
+
+        if messageOpenFile != "":
+            QMessageBox.critical(self, "ERROR!", messageOpenFile)
+            return False, ''
 
         errorMessage = errorMessage + "Please, check what was the problem with the above files!"
         if False in fileIsThere:
             QMessageBox.critical(self, "ERROR!", errorMessage)
-            return False
+            return False, ''
 
         if messageNpts != "":
             if(isCritical):
                 QMessageBox.critical(self, "ERROR!", messageNpts)
-                return False
+                return False, ''
             else:
                 messageNpts = messageNpts + f"According to the last config. set, it should be {self.recordsaved} pts!\nPlease, right this down in a log or correct the mistake."
 
@@ -733,14 +745,14 @@ class MainWindow(QtWidgets.QMainWindow, ConfigRecomp, ChannelMapper, RunLogger, 
             for ch, vals in zip(idx_total_events,total_events):
                 messageWvfs = f'{messageWvfs}Ch{ch} had {"{:,}".format(vals)} waveforms recorded\n'
             QMessageBox.critical(self, "ERROR", messageWvfs)
-            return False
+            return False, ''
 
 
         if False in FileNotThereYet:
             # for state in FileNotThereYet:
                 # print(state)
             QMessageBox.critical(self, "ERROR!", errorMessage2)
-            return False
+            return False, ''
 
 
         # create the folder only after checking everying is fine
@@ -758,33 +770,25 @@ class MainWindow(QtWidgets.QMainWindow, ConfigRecomp, ChannelMapper, RunLogger, 
                     noerror.append(True)
 
         if False in noerror:
-            QMessageBox.warning(self, "Warning!", "There are one or more errors transfering the files. Subrun number will change, but check what happend")
+            QMessageBox.warning(self, "Warning!", "There are one or more errors transfering the files. Run number will change, but check what happend")
         else:
             messageOk = f'{"{:,}".format(total_events[0])} waveforms saved per file.\n\n'
             if messageNpts != "":
                 messageOk = f'{messageOk}{messageNpts}\n'
 
-            messageOk = messageOk +'Files were moved, new subrun'
-            QMessageBox.about(self, "", messageOk)
-        return True
+            messageOk = messageOk +'Files were moved, new run'
+        return True, messageOk
 
-    def finishRun(self, runLine, subrunLine, movetype):
-        ret = QMessageBox.question(self, "", "Finish this run?", QMessageBox.Yes, QMessageBox.No)
-
-        if ret == QMessageBox.Yes:
-            if movetype == 'D':
-                self.getInfoDefault()
-            elif movetype == 'S':
-                self.getInfoStyle2
-            _, mpath, folder, _, _, _ = self.genPatternInfo(False)
-            self.saveRunLog(mpath+folder, True)
-            QMessageBox.about(self, "", "New run!")
-            self.run[0] = int(runLine.text())
-            self.run[0] += 1
-            runLine.setText(str(self.run[0]))
-            self.subrun[0] = 0
-            subrunLine.setText(str(self.subrun[0]))
-            self.nofilesmove = True
+    def finishRun(self, runLine, movetype):
+        if movetype == 'D':
+            self.getInfoDefault()
+        elif movetype == 'S':
+            self.getInfoStyle2
+        _, mpath, folder, _, _, _ = self.genPatternInfo(False)
+        self.run[0] = int(runLine.text())
+        self.run[0] += 1
+        runLine.setText(str(self.run[0]))
+        self.nofilesmove = True
 
 
     def lock_unlock(self):
@@ -795,6 +799,28 @@ class MainWindow(QtWidgets.QMainWindow, ConfigRecomp, ChannelMapper, RunLogger, 
 
     def setDebugMode(self):
         self.DEBUGMODE = self.ui.debugModeBox.isChecked()
+
+    def checkFileIsOpen(self, data):
+        output = sp.check_output(f"fuser --verbose {data}; exit 0",shell=True, stderr=sp.STDOUT).decode()
+        if output == '':
+            return {'INUSE':False}
+
+        output = output.split()
+        if output[:4] != ['USER', 'PID', 'ACCESS', 'COMMAND']:
+            QMessageBox.critical(self, 'ERROR!!!', "Files might be opened, but command line did not behave as expected. Need some debug")
+            return {'INUSE', False}
+
+        keys = output[:4] # take 4 first as keys
+        output = output[5:] # skip file name, take all the rest
+        splitsize = len(output)/4
+        output = np.array(np.array_split(output,splitsize))
+        ret = {}
+        for i, k in enumerate(keys):
+            ret[k] = output[:,i]
+
+        ret['INUSE'] = True
+        return ret
+
 
 
 

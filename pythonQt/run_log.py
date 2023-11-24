@@ -50,28 +50,10 @@ class RunLogger():
         texttowrite = self.rlui.runlogfield.toPlainText() # get whatever is already there...
 
         if not os.path.exists(frunlog): # if file files does not exist, if subrun is 0, fine
-            if self.subrun[0] == 0 or finishingrun:
-                if self.keep_ask_log:
-                    if self.subrun[0] != 0: # so when it is finishing a run and there was data transfered
-                        QMessageBox.warning(self,"WARNING!!!", "There is no run log saved for this run.\nKeep it empty or cancel next dialog for not saving.")
-                    elif finishingrun:
-                        return
-
-                    has_new_log = self.showDiagRunLog()
-                    if has_new_log: texttowrite = self.rlui.runlogfield.toPlainText() # get whatever is already there...
-                    else: return
-
-            else:
-                if texttowrite.strip() and texttowrite.strip() != self.standardlog.strip():
-                    answer = QMessageBox.question(self, "WARNING!!!",
-                                                  f"Previous subrun (#{self.subrun[0]}) had no log. Make sure you are not running in different conditions.\n\n" \
-                                                  "Remember, subruns are just to add events. If something is changed, start a new run.\n\n" \
-                                                  "Do you want to proceed and overwrite it?.", QMessageBox.Yes, QMessageBox.No)
-                    if answer == QMessageBox.No:
-                        return
-
-
-
+            if self.keep_ask_log:
+                has_new_log = self.showDiagRunLog()
+                if has_new_log: texttowrite = self.rlui.runlogfield.toPlainText() # get whatever is already there...
+                else: return
 
         if os.path.exists(frunlog): # if it exists..
             if finishingrun and self.nofilesmove: # If user is finishing run, and no file was moved, no reason to save things
