@@ -446,6 +446,8 @@ class ConfigRecomp():
                 lines = [line for line in alllines if line and not line.startswith('#')]
                 self.sampling_set = lines[0]
                 self.sampling_original = lines[1]
+                self.run[0] = lines[2]
+                self.ui.run_3.setText(str(self.run[0]))
 
         except IOError:
             self.writeState()
@@ -460,6 +462,8 @@ class ConfigRecomp():
                 f.write(f'{self.sampling_set}\n')
                 f.write(f'# Sampling rate original\n')
                 f.write(f'{self.sampling_original}\n')
+                f.write(f'# Last run number\n')
+                f.write(f'{int(self.ui.run_3.text())}\n')
         except IOError:
             return
 

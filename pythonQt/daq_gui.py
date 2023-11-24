@@ -50,6 +50,7 @@ class MainWindow(QtWidgets.QMainWindow, ConfigRecomp, ChannelMapper, RunLogger, 
 
         self.nchannels = 8
         self.DEBUGMODE = False
+        self.run = [0]
         self.userpath = os.path.expanduser('~') # sames has 'cd ~/ && pwd' but safer
         self.codepath = os.path.abspath(os.path.dirname(__file__)) # gets the location of the python script
         self.codepath_list = self.codepath.split(os.sep) # split it with the division "/",
@@ -335,6 +336,7 @@ class MainWindow(QtWidgets.QMainWindow, ConfigRecomp, ChannelMapper, RunLogger, 
 
         
     def closeEvent(self, event):
+        self.writeState()
         self.About.close()
         self.RunLog.close()
         self.ChannelMap.close()
@@ -445,7 +447,7 @@ class MainWindow(QtWidgets.QMainWindow, ConfigRecomp, ChannelMapper, RunLogger, 
         os.system(f'mkdir -p {self.default_path}')
     def getDir(self):
         dirnow = self.ui.primary_name.text()
-        directory = QtWidgets.QFileDialog.getExistingDirectory(self, "Find Files", f'{self.default_path}/{dirnow}')
+        directory = QtWidgets.QFileDialog.getExistingDirectory(self, "Find Files", f'{self.default_path}/{dirnow}/../')
         tocheck = self.default_path[:-1]
         if directory and directory != tocheck:
             if directory.startswith(tocheck):
