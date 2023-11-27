@@ -1666,7 +1666,8 @@ int WriteOutputFiles(WaveDumpConfig_t *WDcfg, WaveDumpRun_t *WDrun, CAEN_DGTZ_Ev
         if (WDrun->SingleWrite) {
             fclose(WDrun->fout[ch]);
             WDrun->fout[ch]= NULL;
-            *last_state = afterSingle;
+            if (ch == nchannels-1)
+              *last_state = afterSingle;
         }
     }
     return 0;
