@@ -446,8 +446,12 @@ class ConfigRecomp():
                 lines = [line for line in alllines if line and not line.startswith('#')]
                 self.sampling_set = lines[0]
                 self.sampling_original = lines[1]
-                self.run[0] = lines[2]
-                self.ui.run_3.setText(str(self.run[0]))
+                try:
+                    self.run[0] = lines[2]
+                    self.ui.run_3.setText(str(self.run[0]))
+                except:
+                    self.run[0] = 0
+                    self.ui.run_3.setText('0')
 
         except IOError:
             self.writeState()
