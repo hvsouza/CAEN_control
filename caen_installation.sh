@@ -168,15 +168,11 @@ cp -r $ROOTPATH/$SOURCEFILES/WaveDumpConfig.txt .
 # creates a shortcut at Desktop. The move_files GUI must be installed by hand
 mkdir -p ~/Desktop/WaveDumpData
 cp $ROOTPATH/$SOURCEFILES/WaveDumpExe.sh ~/Desktop/WaveDumpData/
-> ~/Desktop/WaveDumpData/move_files.sh
+> ~/Desktop/WaveDumpData/daq_gui.sh
 echo '#!/bin/bash' >> ~/Desktop/WaveDumpData/daq_gui.sh
 echo '' >> ~/Desktop/WaveDumpData/daq_gui.sh
 echo "python3 $ROOTPATH/pythonQt/daq_gui.py &" >> ~/Desktop/WaveDumpData/daq_gui.sh
 
-
-# # copying files necessary for QtCreator
-# mkdir -p ~/Documents/QtCreator
-# cp -r $ROOTPATH/move_files/move_files ~/Documents/QtCreator/
 
 # copying file to create short cut
 cp -r $ROOTPATH/$SOURCEFILES/install_by_hand/WAVEDump.png ~/Pictures
