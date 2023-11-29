@@ -2449,7 +2449,7 @@
       <property name="geometry">
        <rect>
         <x>399</x>
-        <y>110</y>
+        <y>140</y>
         <width>81</width>
         <height>29</height>
        </rect>
@@ -2491,10 +2491,10 @@ To set a new one, go to &quot;Recompile&quot;</string>
      <widget class="QLabel" name="label_20">
       <property name="geometry">
        <rect>
-        <x>369</x>
-        <y>80</y>
-        <width>161</width>
-        <height>21</height>
+        <x>320</x>
+        <y>140</y>
+        <width>71</width>
+        <height>31</height>
        </rect>
       </property>
       <property name="font">
@@ -2506,12 +2506,18 @@ To set a new one, go to &quot;Recompile&quot;</string>
       <property name="text">
        <string>Sampling rate</string>
       </property>
+      <property name="alignment">
+       <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+      </property>
+      <property name="wordWrap">
+       <bool>true</bool>
+      </property>
      </widget>
      <widget class="QComboBox" name="setPolarity">
       <property name="geometry">
        <rect>
         <x>398</x>
-        <y>170</y>
+        <y>190</y>
         <width>81</width>
         <height>29</height>
        </rect>
@@ -2537,7 +2543,7 @@ To set a new one, go to &quot;Recompile&quot;</string>
       <property name="geometry">
        <rect>
         <x>270</x>
-        <y>160</y>
+        <y>180</y>
         <width>121</width>
         <height>41</height>
        </rect>
@@ -2690,6 +2696,56 @@ polarity:</string>
       </property>
       <property name="text">
        <string>External type:</string>
+      </property>
+     </widget>
+     <widget class="QLabel" name="label_7">
+      <property name="geometry">
+       <rect>
+        <x>340</x>
+        <y>74</y>
+        <width>141</width>
+        <height>21</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string># of waveforms</string>
+      </property>
+     </widget>
+     <widget class="QLineEdit" name="nwaveforms">
+      <property name="geometry">
+       <rect>
+        <x>360</x>
+        <y>100</y>
+        <width>114</width>
+        <height>20</height>
+       </rect>
+      </property>
+      <property name="font">
+       <font>
+        <family>DejaVu Sans</family>
+        <pointsize>10</pointsize>
+       </font>
+      </property>
+      <property name="toolTip">
+       <string>Acquisition window in microseconds</string>
+      </property>
+      <property name="layoutDirection">
+       <enum>Qt::RightToLeft</enum>
+      </property>
+      <property name="autoFillBackground">
+       <bool>false</bool>
+      </property>
+      <property name="text">
+       <string>10000</string>
+      </property>
+      <property name="cursorPosition">
+       <number>5</number>
+      </property>
+      <property name="alignment">
+       <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+      </property>
+      <property name="dragEnabled">
+       <bool>false</bool>
       </property>
      </widget>
     </widget>

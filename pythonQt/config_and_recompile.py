@@ -15,6 +15,7 @@ from ui_mainwindow import Ui_MainWindow
 from PyQt5 import QtCore, QtGui, QtWidgets
 from PyQt5.QtWidgets import QMessageBox
 import subprocess as sp
+import ctypes
 
 class ConfigRecomp():
 
@@ -85,7 +86,13 @@ class ConfigRecomp():
         if res != 0:
             QMessageBox.warning(self, "WARNING!!!",f"Time duration and sampling rate are not compatible!\nRecord length set to {self.recordsaved}\nCorresponding to {ret} ns")
 
+        nwvfs = self.ui.nwaveforms.text()
+        self.nwvfs = int(nwvfs)
+        
+
     def pressSet(self):
+        if not self.checknwvfs():
+            return
         self.writeConfigFile(fromSetConfig=True)
         self.showChannelMap()
 
@@ -162,10 +169,12 @@ class ConfigRecomp():
                 dtime = 1/max_samplingRate #already in us
                 self.ui.time_in_us.setText(str(dtime*self.recordlength))
 
-                self.ui.postTrigger.setText(lines[4].split()[1])
-                self.ui.setPolarity.setCurrentText(lines[5].split()[1].capitalize())
+                self.nwvfs = int(lines[3].split()[1])
+                self.ui.nwaveforms.setText(str(self.nwvfs))
+                self.ui.postTrigger.setText(lines[5].split()[1])
+                self.ui.setPolarity.setCurrentText(lines[6].split()[1].capitalize())
 
-                string_exttr = lines[6].split()[1]
+                string_exttr = lines[7].split()[1]
                 if string_exttr == "ACQUISITION_ONLY":
                     self.ui.externaltrigger.setChecked(True)
                     self.ui.actionAcqusition_only.setChecked(True)
@@ -176,16 +185,17 @@ class ConfigRecomp():
                 else:
                     self.ui.externaltrigger.setChecked(False)
 
-                self.ui.externalType.setCurrentText(lines[7].split()[1])
-                self.ui.FileTypeSet.setCurrentText(lines[8].split()[1])
+                self.ui.externalType.setCurrentText(lines[8].split()[1])
+                self.ui.FileTypeSet.setCurrentText(lines[9].split()[1])
 
                 channel = 0
                 current_channel = 0
-                for i in range(9, len(lines)):
+                for i in range(10, len(lines)):
                     try:
                         second_input = lines[i].split()[1]
                     except:
                         second_input = ""
+
                     if lines[i].startswith(f'[{current_channel}]'):
                         channel = current_channel
                         current_channel+=1
@@ -252,43 +262,45 @@ class ConfigRecomp():
 
         self.getRecordLength()
 
-        config_field = [""]*15
+        config_field = [""]*16
         config_field[0] = '[COMMON]'
         config_field[1] = 'OPEN'
         config_field[2] = 'RECORD_LENGTH'
-        config_field[3] = 'DECIMATION_FACTOR'
-        config_field[4] = 'POST_TRIGGER'
-        config_field[5] = 'PULSE_POLARITY'
-        config_field[6] = 'EXTERNAL_TRIGGER'
-        config_field[7] = 'FPIO_LEVEL'
-        config_field[8] = 'OUTPUT_FILE_FORMAT'
-        config_field[9] = 'OUTPUT_FILE_HEADER'
-        config_field[10] = 'TEST_PATTERN'
-        config_field[11] = 'ENABLE_INPUT'
-        config_field[12] = 'BASELINE_LEVEL'
-        config_field[13] = 'TRIGGER_THRESHOLD'
-        config_field[14] = 'CHANNEL_TRIGGER'
+        config_field[3] = 'CONTINUOUS_WRITTING_MAX'
+        config_field[4] = 'DECIMATION_FACTOR'
+        config_field[5] = 'POST_TRIGGER'
+        config_field[6] = 'PULSE_POLARITY'
+        config_field[7] = 'EXTERNAL_TRIGGER'
+        config_field[8] = 'FPIO_LEVEL'
+        config_field[9] = 'OUTPUT_FILE_FORMAT'
+        config_field[10] = 'OUTPUT_FILE_HEADER'
+        config_field[11] = 'TEST_PATTERN'
+        config_field[12] = 'ENABLE_INPUT'
+        config_field[13] = 'BASELINE_LEVEL'
+        config_field[14] = 'TRIGGER_THRESHOLD'
+        config_field[15] = 'CHANNEL_TRIGGER'
 
 
-        replace = [""]*15
+        replace = [""]*16
         replace[0]  = f'{config_field[0]}'
         if self.uiconnectype[0] == "USB":
             replace[1] = f'{config_field[1]} USB {usbport} 0'
         else:
             replace[1] = f'{config_field[1]} PCI {usbport} 0 0'
         replace[2]  = f'{config_field[2]}  {self.recordlength}'
-        replace[3]  = f'{config_field[3]} 1'
-        replace[4]  = f'{config_field[4]}  {self.ui.postTrigger.text()}'
-        replace[5]  = f'{config_field[5]}  {pulse_polarity}'
-        replace[6]  = f'{config_field[6]}  {externalTrigger}'
-        replace[7]  = f'{config_field[7]}  {pulsetype}'
-        replace[8]  = f'{config_field[8]}  {datatype}'
-        replace[9]  = f'{config_field[9]}  YES'
-        replace[10] = f'{config_field[10]}  NO'
+        replace[3]  = f'{config_field[3]} {self.nwvfs}'
+        replace[4]  = f'{config_field[4]} 1'
+        replace[5]  = f'{config_field[5]}  {self.ui.postTrigger.text()}'
+        replace[6]  = f'{config_field[6]}  {pulse_polarity}'
+        replace[7]  = f'{config_field[7]}  {externalTrigger}'
+        replace[8]  = f'{config_field[8]}  {pulsetype}'
+        replace[9]  = f'{config_field[9]}  {datatype}'
+        replace[10]  = f'{config_field[10]}  YES'
         replace[11] = f'{config_field[11]}  NO'
-        replace[12] = f'{config_field[12]}  10'
-        replace[13] = f'{config_field[13]}  100'
-        replace[14] = f'{config_field[14]}  DISABLED'
+        replace[12] = f'{config_field[12]}  NO'
+        replace[13] = f'{config_field[13]}  10'
+        replace[14] = f'{config_field[14]}  100'
+        replace[15] = f'{config_field[15]}  DISABLED'
         replace_ch = []
 
         basenow = [0]*self.nchannels
@@ -350,6 +362,7 @@ class ConfigRecomp():
                 # add again registers
                 idx_registers = alllines.index(self.example_reg_reference) + 1
                 for reg in self.register_commands:
+                    
                     alllines.insert(idx_registers, reg)
                     idx_registers+=1
 
@@ -499,3 +512,15 @@ class ConfigRecomp():
             uichoice.setChecked(True)
             QMessageBox.about(self, "WARNING", f'{typechoice} was kept.\nChoose one of the two trigger types.')
             self.uitriggertype[0] = typechoice
+
+    def checknwvfs(self):
+        ret = True
+        try:
+            value = int(self.ui.nwaveforms.text())
+        except:
+            QMessageBox.critical(self,"ERROR!!!", "Number of waveforms should be an integer")
+            ret = False
+            value = 0
+        value = ctypes.c_uint64(value).value
+        self.ui.nwaveforms.setText(str(value))
+        return ret

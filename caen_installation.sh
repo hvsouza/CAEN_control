@@ -148,7 +148,9 @@ cp $ROOTPATH/$SOURCEFILES/WaveDump.c .
 linenumber_factor=$(eval "sed -n '/int factor/=' WaveDump.c") # search line with pathern
 sed -i "$linenumber_factor d" WaveDump.c
 sed -i "$linenumber_factor i \ \ \ \ \ \ \ \ int factor = $int_factor; \/\/ Added by Henrique Souza\r" WaveDump.c
+cp $ROOTPATH/$SOURCEFILES/WDconfig.c .
 cp $ROOTPATH/$SOURCEFILES/WDconfig.h ../include/
+cp $ROOTPATH/$SOURCEFILES/WaveDump.h ../include/
 cd ..
 
 echo "Installing gnuplot"
@@ -160,13 +162,13 @@ make
 sudo make install
 
 # replacing config file
-cp -r $ROOTPATH/$SOURCEFILES/install_by_hand/WaveDumpConfig.txt /etc/wavedump/
-cp -r $ROOTPATH/$SOURCEFILES/install_by_hand/WaveDumpConfig.txt .
+cp -r $ROOTPATH/$SOURCEFILES/WaveDumpConfig.txt /etc/wavedump/
+cp -r $ROOTPATH/$SOURCEFILES/WaveDumpConfig.txt .
 
 # creates a shortcut at Desktop. The move_files GUI must be installed by hand
 mkdir -p ~/Desktop/WaveDumpData
 cp $ROOTPATH/$SOURCEFILES/WaveDumpExe.sh ~/Desktop/WaveDumpData/
-> ~/Desktop/WaveDumpData/daq_gui.sh
+> ~/Desktop/WaveDumpData/move_files.sh
 echo '#!/bin/bash' >> ~/Desktop/WaveDumpData/daq_gui.sh
 echo '' >> ~/Desktop/WaveDumpData/daq_gui.sh
 echo "python3 $ROOTPATH/pythonQt/daq_gui.py &" >> ~/Desktop/WaveDumpData/daq_gui.sh

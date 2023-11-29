@@ -329,6 +329,7 @@ class MainWindow(QtWidgets.QMainWindow, ConfigRecomp, ChannelMapper, RunLogger, 
         self.getEnabledAndTrigger()
 
         self.recordlength = 0
+        self.nwvfs = 100000
         self.getRecordLength()
         self.loadConfig(self.standard_config_file)
         self.setWindowIcon(QIcon(f"{self.codepath}/.repo_img/icon_GUI.png"))
@@ -708,37 +709,37 @@ class MainWindow(QtWidgets.QMainWindow, ConfigRecomp, ChannelMapper, RunLogger, 
                 errorMessage2 = f'{errorMessage2}The file \'{transfercheck} \'already exist, please check the run number!\n'
             elif self.enable_ch[i].isChecked():
                 pids = self.checkFileIsOpen(datacheck)
-                if pids['INUSE'] == False:
-                    if myformat == ".dat":
-                        _actual_pts_saved, _total_events = self.getInfoBinary(datacheck)
-                    else:
-                        _actual_pts_saved, _total_events = self.getInfoASCII(datacheck)
-                    actual_pts_saved.append(_actual_pts_saved)
-                    total_events.append(_total_events)
-                    idx_total_events.append(i)
-                    if actual_pts_saved[aux] != self.recordsaved:
-                        messageNpts = f'{messageNpts}Ch{i} has {actual_pts_saved[aux]} pts per waveforms.\n'
-                    if len(set(actual_pts_saved))!=1:
-                        messageNpts = f'{messageNpts}Number of pts per waveform are not equal in all files!!!\n\nFiles were not transfered.'
-                        isCritical = True
-                    aux += 1
+                if pids['INUSE'] == True:
+                    messageOpenFile += f"The file {datacheck} is open, by these process {pids['PID']}, command: {pids['COMMAND']}\n"
+                if myformat == ".dat":
+                    _actual_pts_saved, _total_events = self.getInfoBinary(datacheck)
                 else:
-                    messageOpenFile = f"The file {datacheck} is open, by these process {pids['PID']}, command: {pids['COMMAND']}"
-                    break
+                    _actual_pts_saved, _total_events = self.getInfoASCII(datacheck)
+                actual_pts_saved.append(_actual_pts_saved)
+                total_events.append(_total_events)
+                idx_total_events.append(i)
+                if actual_pts_saved[aux] != self.recordsaved:
+                    messageNpts = f'{messageNpts}Ch{i} has {actual_pts_saved[aux]} pts per waveforms.\n'
+                if len(set(actual_pts_saved))!=1:
+                    messageNpts = f'{messageNpts}Number of pts per waveform are not equal in all files!!!\n\nFiles were not transfered.'
+                    isCritical = True
+                aux += 1
 
         if messageOpenFile != "":
-            QMessageBox.critical(self, "ERROR!", messageOpenFile)
-            return False, ''
+            messageOpenFile += "\n\nIgnore this and proceed?\n(You can also close wavedump and then move the files, this is safer)"
+            ignoreOpened = QMessageBox.question(self, "WARNING!!!", messageOpenFile, QMessageBox.Yes, QMessageBox.No)
+            if ignoreOpened == QMessageBox.No:
+                return False
 
         errorMessage = errorMessage + "Please, check what was the problem with the above files!"
         if False in fileIsThere:
             QMessageBox.critical(self, "ERROR!", errorMessage)
-            return False, ''
+            return False
 
         if messageNpts != "":
             if(isCritical):
                 QMessageBox.critical(self, "ERROR!", messageNpts)
-                return False, ''
+                return False
             else:
                 messageNpts = messageNpts + f"According to the last config. set, it should be {self.recordsaved} pts!\nPlease, right this down in a log or correct the mistake."
 
@@ -747,14 +748,14 @@ class MainWindow(QtWidgets.QMainWindow, ConfigRecomp, ChannelMapper, RunLogger, 
             for ch, vals in zip(idx_total_events,total_events):
                 messageWvfs = f'{messageWvfs}Ch{ch} had {"{:,}".format(vals)} waveforms recorded\n'
             QMessageBox.critical(self, "ERROR", messageWvfs)
-            return False, ''
+            return False
 
 
         if False in FileNotThereYet:
             # for state in FileNotThereYet:
                 # print(state)
             QMessageBox.critical(self, "ERROR!", errorMessage2)
-            return False, ''
+            return False
 
 
         # create the folder only after checking everying is fine
