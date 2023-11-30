@@ -149,6 +149,7 @@ linenumber_factor=$(eval "sed -n '/int factor/=' WaveDump.c") # search line with
 sed -i "$linenumber_factor d" WaveDump.c
 sed -i "$linenumber_factor i \ \ \ \ \ \ \ \ int factor = $int_factor; \/\/ Added by Henrique Souza\r" WaveDump.c
 cp $ROOTPATH/$SOURCEFILES/WDconfig.c .
+cp $ROOTPATH/$SOURCEFILES/WDplot.c .
 cp $ROOTPATH/$SOURCEFILES/WDconfig.h ../include/
 cp $ROOTPATH/$SOURCEFILES/WaveDump.h ../include/
 cd ..
