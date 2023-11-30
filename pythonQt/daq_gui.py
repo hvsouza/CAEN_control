@@ -586,6 +586,7 @@ class MainWindow(QtWidgets.QMainWindow, ConfigRecomp, ChannelMapper, RunLogger, 
             self.saveConfigDefault()
             self.nofilesmove = False
             self.finishRun(self.ui.run_3, 'D')
+            self.writeState()
             QMessageBox.about(self, "", messageOk)
 
     def style2_move(self):
@@ -729,17 +730,17 @@ class MainWindow(QtWidgets.QMainWindow, ConfigRecomp, ChannelMapper, RunLogger, 
             messageOpenFile += "\n\nIgnore this and proceed?\n(You can also close wavedump and then move the files, this is safer)"
             ignoreOpened = QMessageBox.question(self, "WARNING!!!", messageOpenFile, QMessageBox.Yes, QMessageBox.No)
             if ignoreOpened == QMessageBox.No:
-                return False
+                return False, ''
 
         errorMessage = errorMessage + "Please, check what was the problem with the above files!"
         if False in fileIsThere:
             QMessageBox.critical(self, "ERROR!", errorMessage)
-            return False
+            return False, ''
 
         if messageNpts != "":
             if(isCritical):
                 QMessageBox.critical(self, "ERROR!", messageNpts)
-                return False
+                return False, ''
             else:
                 messageNpts = messageNpts + f"According to the last config. set, it should be {self.recordsaved} pts!\nPlease, right this down in a log or correct the mistake."
 
@@ -748,14 +749,14 @@ class MainWindow(QtWidgets.QMainWindow, ConfigRecomp, ChannelMapper, RunLogger, 
             for ch, vals in zip(idx_total_events,total_events):
                 messageWvfs = f'{messageWvfs}Ch{ch} had {"{:,}".format(vals)} waveforms recorded\n'
             QMessageBox.critical(self, "ERROR", messageWvfs)
-            return False
+            return False, ''
 
 
         if False in FileNotThereYet:
             # for state in FileNotThereYet:
                 # print(state)
             QMessageBox.critical(self, "ERROR!", errorMessage2)
-            return False
+            return False, ''
 
 
         # create the folder only after checking everying is fine
