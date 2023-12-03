@@ -248,14 +248,6 @@ class MainWindow(QtWidgets.QMainWindow, ConfigRecomp, ChannelMapper, RunLogger, 
         self.AddDev.setWindowIcon(QIcon(f"{self.codepath}/.repo_img/icon_GUI.png"))
         self.adddevui.addb.clicked.connect(self.addDeviceToMap)
 
-        # Channel map add device
-        self.DelDev = QtWidgets.QMainWindow()
-        self.deldevui = Ui_DelDev()
-        self.deldevui.setupUi(self.DelDev)
-        self.DelDev.setWindowModality(QtCore.Qt.WindowModality.WindowModal) # prevent window to lose focus (close - open)
-        self.DelDev.setWindowIcon(QIcon(f"{self.codepath}/.repo_img/icon_GUI.png"))
-        self.deldevui.delb.clicked.connect(self.delDeviceToMap)
-
         # Run log Widget setup
         self.CoincTrigger = QtWidgets.QMainWindow()
         self.ctui = Ui_CoincTrigger()
@@ -263,7 +255,7 @@ class MainWindow(QtWidgets.QMainWindow, ConfigRecomp, ChannelMapper, RunLogger, 
         self.CoincTrigger.setWindowModality(QtCore.Qt.WindowModality.WindowModal) # prevent window to lose focus (close - open)
         self.CoincTrigger.setWindowIcon(QIcon(f"{self.codepath}/.repo_img/icon_GUI.png"))
 
-        self.ui.actionCoincidence.triggered.connect(lambda: self.CoincTrigger.show())
+        self.ui.actionCoincidence.triggered.connect(self.showCoincidence)
         self.coincEnabledCBox = [
             self.ctui.enable0,
             self.ctui.enable1,
@@ -364,6 +356,15 @@ class MainWindow(QtWidgets.QMainWindow, ConfigRecomp, ChannelMapper, RunLogger, 
         if ret:
             self.rlui.runlogfield.setPlainText(self.diagui.runlogfield.toPlainText())
         return ret
+
+    def showCoincidence(self):
+        self.CoincTrigger.close()
+        self.CoincTrigger.show()
+
+    def showRegister(self):
+        self.Register.close()
+        self.Register.show()
+
 
     def showRunLog(self):
         if self.runlog_neveropen:
@@ -669,6 +670,14 @@ class MainWindow(QtWidgets.QMainWindow, ConfigRecomp, ChannelMapper, RunLogger, 
         return next(g, True) and not next(g, False)
 
     def moveFiles(self):
+        anyenabled = False
+        for ench in self.enable_ch:
+            ench:QtWidgets.QCheckBox
+            anyenabled = anyenabled or ench.isChecked()
+        if anyenabled is False:
+            QMessageBox.critical(self,"ERRO!","No channel enabled")
+            return False, ""
+
 
         self.block = self.fixString(self.block)
 
