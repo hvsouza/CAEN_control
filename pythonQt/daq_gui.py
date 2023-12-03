@@ -248,6 +248,14 @@ class MainWindow(QtWidgets.QMainWindow, ConfigRecomp, ChannelMapper, RunLogger, 
         self.AddDev.setWindowIcon(QIcon(f"{self.codepath}/.repo_img/icon_GUI.png"))
         self.adddevui.addb.clicked.connect(self.addDeviceToMap)
 
+        # Channel map add device
+        self.DelDev = QtWidgets.QMainWindow()
+        self.deldevui = Ui_DelDev()
+        self.deldevui.setupUi(self.DelDev)
+        self.DelDev.setWindowModality(QtCore.Qt.WindowModality.WindowModal) # prevent window to lose focus (close - open)
+        self.DelDev.setWindowIcon(QIcon(f"{self.codepath}/.repo_img/icon_GUI.png"))
+        self.deldevui.delb.clicked.connect(self.delDeviceToMap)
+
         # Run log Widget setup
         self.CoincTrigger = QtWidgets.QMainWindow()
         self.ctui = Ui_CoincTrigger()
@@ -312,7 +320,7 @@ class MainWindow(QtWidgets.QMainWindow, ConfigRecomp, ChannelMapper, RunLogger, 
         self.self_trigger_time = 1
         self.coincidenceWindow = 1
 
-        self.ui.actionRegister.triggered.connect(lambda: self.Register.show())
+        self.ui.actionRegister.triggered.connect(self.showRegister)
 
         # Debug mode button
         self.ui.debugModeBox.toggled.connect(self.setDebugMode)
