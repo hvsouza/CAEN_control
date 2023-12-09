@@ -35,7 +35,7 @@ class RegisterWritter():
             if cbox.isChecked():
                 self.coinc_enabled[i] = True
                 self.enable_ch[i].setChecked(True)
-                self.trigger_ch[i].setChecked(True)
+                self.trigger_ch[i].setChecked(False)
                 self.ui.externaltrigger.setChecked(False)
             else:
                 self.coinc_enabled[i] = False
